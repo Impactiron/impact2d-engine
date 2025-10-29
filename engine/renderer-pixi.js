@@ -1,8 +1,15 @@
 import { Sprite } from './sprite.js';
+import { Transform } from './component.js';
 import { Application, Sprite as PixiSprite, Container, Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
 
 export class PixiRenderer {
-  constructor(){ this.app = null; this.layers = new Map(); }
+  constructor(){
+    this.app = null;
+    this.layers = new Map();   // name -> { container, factor }
+    this.cameraX = 0;
+    this.cameraY = 0;
+  }
+
   async init(canvas){
     this.app = new Application();
     await this.app.init({
@@ -15,6 +22,37 @@ export class PixiRenderer {
       document.body.appendChild(this.app.canvas);
     }
   }
+
+  defineLayer(name, factor=1){
+    // Create or update a layer with parallax factor
+    let entry = this.layers.get(name);
+    if(!entry){
+      const container = new Container();
+      this.app.stage.addChild(container);
+      entry = { container, factor };
+      this.layers.set(name, entry);
+    } else {
+      entry.factor = factor;
+    }
+    this._applyCameraTo(entry);
+  }
+
+  setCamera(x, y){
+    this.cameraX = x; this.cameraY = y;
+    for(const entry of this.layers.values()) this._applyCameraTo(entry);
+  }
+
+  _applyCameraTo(entry){
+    if(!this.app) return;
+    const w = this.app.renderer.width;
+    const h = this.app.renderer.height;
+    const f = entry.factor ?? 1;
+    entry.container.position.set(
+      Math.floor(w/2 - this.cameraX * f),
+      Math.floor(h/2 - this.cameraY * f)
+    );
+  }
+
   attach(scene){
     const create = (node)=>{
       const comps = node.getComponents?.(Sprite) || [];
@@ -29,17 +67,26 @@ export class PixiRenderer {
           display = new Graphics().rect(0,0,48,48).fill(0xffffff);
         }
 
-        let layer = this.layers.get(c.layer);
-        if(!layer){
-          layer = new Container();
-          this.layers.set(c.layer, layer);
-          this.app.stage.addChild(layer);
+        // ensure layer exists
+        let entry = this.layers.get(c.layer || 'default');
+        if(!entry){
+          this.defineLayer(c.layer || 'default', 1);
+          entry = this.layers.get(c.layer || 'default');
         }
-        layer.addChild(display);
+        entry.container.addChild(display);
+
+        // initial world position (Transform if present)
+        const tr = node.getComponent?.(Transform);
+        if(tr){
+          display.x = tr.position.x;
+          display.y = tr.position.y;
+        }
         c._pixi = display;
       }
       for(const ch of node.children) create(ch);
     };
     create(scene);
+    // re-apply camera to all layers at end
+    for(const entry of this.layers.values()) this._applyCameraTo(entry);
   }
 }
