@@ -9,12 +9,16 @@ import { Sprite } from './sprite.js';
 const scene = new Scene('Root');
 const player = new Node('Player');
 const t = player.addComponent(new Transform());
-player.addComponent(new Sprite('https://picsum.photos/seed/impact2d/64'));
+t.position.x = 200;
+t.position.y = 140;
+
+// Use a guaranteed-visible rectangle instead of external image
+player.addComponent(new Sprite('rect:56'));
 scene.add(player);
 
 // Simple movement script
 class MoveScript extends Component {
-  constructor(input){ super(); this.input = input; this.speed = 0.2; }
+  constructor(input){ super(); this.input = input; this.speed = 0.25; }
   onUpdate(dt){
     const tr = this.owner.getComponent(Transform);
     if(!tr) return;
@@ -28,7 +32,7 @@ class MoveScript extends Component {
     if(up) tr.position.y -= s;
     if(down) tr.position.y += s;
 
-    // apply to PIXI sprite if present
+    // sync to display object if present
     const spr = this.owner.getComponent(Sprite);
     if(spr && spr._pixi){
       spr._pixi.x = tr.position.x;
