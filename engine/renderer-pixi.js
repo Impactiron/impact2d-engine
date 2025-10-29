@@ -36,6 +36,14 @@ export class PixiRenderer {
     this._applyCameraTo(entry);
   }
 
+  // NEW: expose container to allow external drawing (e.g., Tilemap)
+  getLayerContainer(name){
+    if(!this.layers.get(name)){
+      this.defineLayer(name, 1);
+    }
+    return this.layers.get(name).container;
+  }
+
   setCamera(x, y){
     this.cameraX = x; this.cameraY = y;
     for(const entry of this.layers.values()) this._applyCameraTo(entry);

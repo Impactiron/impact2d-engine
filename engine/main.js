@@ -1,4 +1,4 @@
-const BUILD = "PHYS-2025-10-29a";
+const BUILD = "TILEMAP-RENDER-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -6,78 +6,39 @@ import { Game } from './game.js';
 import { Input } from './input.js';
 import { PixiRenderer } from './renderer-pixi.js';
 import { Sprite } from './sprite.js';
-import { aabbOf, moveWithCollisions } from './physics-lite.js';
+import { Tilemap } from './tilemap.js';
+import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
 
-// Scene setup
+// Scene & Player
 const scene = new Scene('Root');
 
-// Player
 const player = new Node('Player');
 const t = player.addComponent(new Transform());
-t.position.x = 0;
-t.position.y = 0;
-const playerSprite = player.addComponent(new Sprite('rect:56'));
+t.position.x = 32 * 3;
+t.position.y = 32 * 3;
+const playerSprite = player.addComponent(new Sprite('rect:24'));
 playerSprite.layer = 'default';
 scene.add(player);
 
-// Build some walls (rectangles) in world space
-const walls = [];
-
-function addWall(x,y,w,h){
-  const n = new Node('wall');
-  const tr = n.addComponent(new Transform());
-  tr.position.x = x;
-  tr.position.y = y;
-  const sp = n.addComponent(new Sprite(`rect:${w}x${h}`)); // wide rectangles supported by renderer
-  sp.layer = 'default';
-  scene.add(n);
-  walls.push(n);
-}
-
-// World bounds box (1000x1000)
-addWall(-520, -520, 1040, 20);  // top
-addWall(-520, 500, 1040, 20);   // bottom
-addWall(-520, -500, 20, 1000);  // left
-addWall(500, -500, 20, 1000);   // right
-
-// Some inner obstacles
-addWall(-200, -200, 300, 20);
-addWall(50, -100, 20, 260);
-addWall(-100, 150, 220, 20);
-
-// Precompute collider AABBs for faster checks
-function collectColliders(){
-  return walls.map(aabbOf);
-}
-let colliders = collectColliders();
-
-// Movement script with AABB sliding
+// Simple movement
 class MoveScript extends Component {
   constructor(input){ super(); this.input = input; this.speed = 0.25; }
   onUpdate(dt){
     const tr = this.owner.getComponent(Transform);
     if(!tr) return;
     const s = this.speed * dt;
-    let dx = 0, dy = 0;
-    if(this.input.get('ArrowLeft').down || this.input.get('KeyA').down) dx -= s;
-    if(this.input.get('ArrowRight').down || this.input.get('KeyD').down) dx += s;
-    if(this.input.get('ArrowUp').down || this.input.get('KeyW').down) dy -= s;
-    if(this.input.get('ArrowDown').down || this.input.get('KeyS').down) dy += s;
-
-    moveWithCollisions(this.owner, dx, dy, colliders);
-
-    // sync to display
+    if(this.input.get('ArrowLeft').down || this.input.get('KeyA').down) tr.position.x -= s;
+    if(this.input.get('ArrowRight').down || this.input.get('KeyD').down) tr.position.x += s;
+    if(this.input.get('ArrowUp').down || this.input.get('KeyW').down) tr.position.y -= s;
+    if(this.input.get('ArrowDown').down || this.input.get('KeyS').down) tr.position.y += s;
     const spr = this.owner.getComponent(Sprite);
-    if(spr && spr._pixi){
-      spr._pixi.x = tr.position.x;
-      spr._pixi.y = tr.position.y;
-    }
+    if(spr && spr._pixi){ spr._pixi.x = tr.position.x; spr._pixi.y = tr.position.y; }
   }
 }
 const input = new Input();
 player.addComponent(new MoveScript(input));
 
-// Camera follow script
+// Camera follow
 class CameraFollow extends Component {
   constructor(renderer){ super(); this.r = renderer; }
   onUpdate(){ 
@@ -85,6 +46,22 @@ class CameraFollow extends Component {
     if(tr) this.r.setCamera(tr.position.x, tr.position.y);
   }
 }
+
+// Build a demo tilemap (render-only)
+// 0 = floor, 1 = wall
+const W = 40, H = 30, TS = 32;
+const tiles = [];
+for(let y=0;y<H;y++){
+  const row = [];
+  for(let x=0;x<W;x++){
+    if(x===0||y===0||x===W-1||y===H-1) row.push(1); // border walls
+    else if((x+y)%11===0) row.push(1);             // some pattern
+    else row.push(0);
+  }
+  tiles.push(row);
+}
+const palette = { 0: 0x202733, 1: 0x586174 }; // darker floor, lighter walls
+const tilemap = new Tilemap({ tiles, tileSize: TS, palette });
 
 // Start engine + renderer
 const game = new Game();
@@ -95,6 +72,20 @@ renderer.init().then(()=>{
   renderer.defineLayer('far', 0.5);
   renderer.defineLayer('mid', 0.8);
   renderer.defineLayer('default', 1.0);
+  
+  // Draw tilemap into 'mid' layer using PIXI Graphics
+  const cont = renderer.getLayerContainer('mid');
+  for(let y=0;y<H;y++){ 
+    for(let x=0;x<W;x++){ 
+      const v = tiles[y][x];
+      const col = palette[v] ?? 0x333333;
+      const g = new Graphics();
+      g.rect(0,0,TS,TS).fill(col);
+      g.x = x*TS;
+      g.y = y*TS;
+      cont.addChild(g);
+    }
+  }
 
   renderer.attach(scene);
   player.addComponent(new CameraFollow(renderer));
@@ -106,7 +97,7 @@ let last = performance.now(), frames=0, fps=0;
 const hud = document.getElementById('hud');
 function meter(){
   const now = performance.now(); frames++;
-  if(now - last >= 1000){ fps = frames; frames=0; last = now; hud.textContent = `!mpact2d • ${BUILD} • FPS: ${fps}`; }
+  if(now - last >= 1000){ fps = frames; frames=0; last = now; hud.textContent = `!mpact2d • {BUILD} • FPS: ${fps}`; }
   requestAnimationFrame(meter);
 }
 meter();
