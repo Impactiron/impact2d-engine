@@ -1,4 +1,4 @@
-const BUILD = "TILEMAP-COLLIDE-HOTFIX-2025-10-29";
+const BUILD = "TILEMAP-COLLIDE-LAYERFIX-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -18,7 +18,7 @@ const PLAYER_SIZE = 24;
 t.position.x = 32 * 3;
 t.position.y = 32 * 3;
 const playerSprite = player.addComponent(new Sprite('rect:'+PLAYER_SIZE));
-playerSprite.layer = 'default';
+playerSprite.layer = 'default'; // gameplay layer
 scene.add(player);
 
 // Movement
@@ -46,7 +46,7 @@ class CameraFollow extends Component {
   }
 }
 
-// Demo Tilemap (identisch zur vorherigen Version)
+// Demo Tilemap (identisch): 0=floor, 1=wall, 2=lava, 3=water, 4=sand
 const W = 40, H = 30, TS = 32;
 const tiles = [];
 for(let y=0;y<H;y++){ 
@@ -67,9 +67,9 @@ for(let y=0;y<H;y++){
 const palette = { 
   0: 0x202733, // floor
   1: 0x586174, // wall
-  2: 0xb24b36, // lava (reddish)
-  3: 0x2f6aa5, // water (blue)
-  4: 0xa68a5b, // sand (brownish)
+  2: 0xb24b36, // lava
+  3: 0x2f6aa5, // water
+  4: 0xa68a5b, // sand
 };
 
 // Start engine + renderer
@@ -77,13 +77,14 @@ const game = new Game();
 const renderer = new PixiRenderer();
 
 renderer.init().then(()=>{
-  renderer.defineLayer('sky', 0.2);
-  renderer.defineLayer('far', 0.5);
-  renderer.defineLayer('mid', 0.8);
-  renderer.defineLayer('default', 1.0);
+  // Make all gameplay layers factor 1.0 to keep visual and physics spaces identical
+  renderer.defineLayer('sky', 0.2);   // purely decorative background
+  renderer.defineLayer('far', 0.5);   // decorative parallax
+  renderer.defineLayer('world', 1.0); // NEW: world layer for collidable tiles
+  renderer.defineLayer('default', 1.0); // player & entities
 
-  // Draw tilemap into 'mid' layer
-  const cont = renderer.getLayerContainer('mid');
+  // Draw tilemap into the WORLD (factor 1.0) to match physics coordinates
+  const cont = renderer.getLayerContainer('world');
   for(let y=0;y<H;y++){ 
     for(let x=0;x<W;x++){ 
       const v = tiles[y][x];
@@ -124,7 +125,7 @@ renderer.init().then(()=>{
   game.start(scene);
 });
 
-// HUD with build + FPS
+// HUD
 let last = performance.now(), frames=0, fps=0;
 const hud = document.getElementById('hud');
 function meter(){
