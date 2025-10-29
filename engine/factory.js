@@ -1,17 +1,17 @@
-// !mpact2d — Entity Factory (step 1: prefabs & spawn)
-// Zero-install. No behaviors yet; just construction & placement.
-
+// !mpact2d — Entity Factory (prefabs & spawn) + optional collider support
 import { Node } from './node.js';
 import { Transform } from './component.js';
 import { Sprite } from './sprite.js';
+import { Collider } from './collider.js';
 
 export class EntityFactory {
   constructor() {
-    this.prefabs = new Map(); // name -> config
+    this.prefabs = new Map();
   }
 
   register(name, config) {
-    // config: { sprite?: string ('rect:24' or texture URL), size?: number, layer?: string, props?: object }
+    // config: { sprite?: 'rect:24' or URL, size?: number, layer?: string, props?: object,
+    //           collider?: { size?: number, solid?: boolean } }
     this.prefabs.set(name, { ...config });
   }
 
@@ -29,7 +29,14 @@ export class EntityFactory {
     const s = node.addComponent(new Sprite(tex));
     if (cfg.layer) s.layer = cfg.layer;
 
-    // attach raw props for gameplay systems later
+    // optional collider
+    const colCfg = cfg.collider;
+    if (colCfg) {
+      const csize = (colCfg.size != null) ? colCfg.size : (cfg.size ?? 16);
+      const csolid = (colCfg.solid != null) ? !!colCfg.solid : true;
+      node.addComponent(new Collider(csize, csolid));
+    }
+
     node.__props = { ...(base.props||{}), ...(cfg.props||{}) };
     return node;
   }
