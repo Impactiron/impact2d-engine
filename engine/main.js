@@ -1,4 +1,4 @@
-const BUILD = "ENTITY-FACTORY-TRIGGERS-HOTFIX-2025-10-29";
+const BUILD = "ENTITY-FACTORY-GEMFIX-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -11,7 +11,6 @@ import { TileTypes, moveWithTileCollisions } from './tilemap-physics.js';
 import { TriggerSystem } from './triggers.js';
 import { EntityFactory } from './factory.js';
 
-// Scene & Player
 const scene = new Scene('Root');
 const PLAYER_SIZE = 24;
 
@@ -23,7 +22,6 @@ const playerSprite = playerNode.addComponent(new Sprite('rect:'+PLAYER_SIZE));
 playerSprite.layer = 'default';
 scene.add(playerNode);
 
-// Movement
 class MoveScript extends Component {
   constructor(input, getSpeedMul){ super(); this.input = input; this.baseSpeed = 0.25; this.getSpeedMul = getSpeedMul; this.dx=0; this.dy=0; }
   onUpdate(dt){
@@ -39,7 +37,6 @@ class MoveScript extends Component {
   }
 }
 
-// Camera follow
 class CameraFollow extends Component {
   constructor(renderer){ super(); this.r = renderer; }
   onUpdate(){ 
@@ -48,7 +45,6 @@ class CameraFollow extends Component {
   }
 }
 
-// Tilemap
 const W = 40, H = 30, TS = 32;
 const tiles = [];
 for(let y=0;y<H;y++){
@@ -64,15 +60,14 @@ for(let y=0;y<H;y++){
   }
   tiles.push(row);
 }
-// carve free start area + corridor
 for(let yy=1; yy<=10; yy++){ for(let xx=1; xx<=12; xx++){ tiles[yy][xx] = 0; } }
 for(let yy=8; yy<=10; yy++){ for(let xx=12; xx<=24; xx++){ tiles[yy][xx] = 0; } }
-// ADD: visible lava patch near corridor (so it's guaranteed on-screen)
 for(let yy=8; yy<=9; yy++){ for(let xx=22; xx<=24; xx++){ tiles[yy][xx] = 2; } }
+// Guarantee the gem tile is floor
+tiles[9][15] = 0;
 
 const palette = { 0:0x202733, 1:0x586174, 2:0xb24b36, 3:0x2f6aa5, 4:0xa68a5b };
 
-// Start
 const game = new Game();
 const renderer = new PixiRenderer();
 
@@ -92,7 +87,6 @@ renderer.init().then(()=>{
     }
   }
 
-  // Movement + collisions
   const input = new Input();
   const mover = playerNode.addComponent(new MoveScript(input, ()=>{
     const cx = Math.floor((t.position.x + PLAYER_SIZE/2)/TS);
@@ -113,29 +107,25 @@ renderer.init().then(()=>{
   }
   playerNode.addComponent(new TileCollisionResolver());
 
-  // === v0.7: Entity Factory (simple)
+  // Factory
   const factory = new EntityFactory();
   factory.register('crate', { sprite:'rect:18', layer:'default', props:{ loot:1 } });
-  factory.register('gem',   { sprite:'rect:12', layer:'default', props:{ value:10 } });
+  factory.register('gem',   { sprite:'rect:24', layer:'default', props:{ value:10 } }); // bigger & clearer
   factory.register('bot',   { sprite:'rect:16', layer:'default', props:{ hp:5 } });
 
-  const gem = factory.spawn('gem',   { x: 16*TS, y: 9*TS });
+  const gem = factory.spawn('gem',   { x: 15*TS, y: 9*TS }); // moved left by one tile
   const crate = factory.spawn('crate', { x: 18*TS, y: 9*TS });
   const bot = factory.spawn('bot',   { x: 20*TS, y: 9*TS });
   scene.add(gem); scene.add(crate); scene.add(bot);
 
-  // === Triggers with HUD messages (guaranteed near start)
+  // Triggers + HUD
   const triggers = new TriggerSystem();
   let lastEvent = "";
-
   const zone = (tx, ty, tw, th, opts={}) => ({ x: tx*TS, y: ty*TS, w: tw*TS, h: th*TS, ...opts });
-  // 1) Hint
   triggers.add(zone(3,2,3,2,{ tag:'hint', once:true, onEnter:() => { lastEvent='Tipp: WASD oder Pfeile zum Bewegen'; } }));
-  // 2) Slow area info (stay)
   triggers.add(zone(14,9,2,2,{ tag:'slow-info', onStay:() => { lastEvent='Hinweis: Wasser/Sand verlangsamen'; } }));
-  // 3) Pickup: hide gem
-  triggers.add(zone(16,9,1,1,{ tag:'pickup', once:true, onEnter:() => { lastEvent='Item aufgenommen (+1)'; if(gem && gem.getComponent) { const s = gem.getComponent(Sprite); if(s && s._pixi) s._pixi.visible = false; } } }));
-  // 4) Lava warning (over the visible patch)
+  // pickup zone aligned to gem's tile
+  triggers.add(zone(15,9,1,1,{ tag:'pickup', once:true, onEnter:() => { lastEvent='Item aufgenommen (+1)'; if(gem && gem.getComponent) { const s = gem.getComponent(Sprite); if(s && s._pixi) s._pixi.visible = false; } } }));
   triggers.add(zone(22,8,3,2,{ tag:'lava', onEnter:() => { lastEvent='Achtung: Lava!'; }, onExit:() => { lastEvent='Raus aus der Lava.'; } }));
 
   class TriggerDriver extends Component {
@@ -151,7 +141,6 @@ renderer.init().then(()=>{
   playerNode.addComponent(new CameraFollow(renderer));
   game.start(scene);
 
-  // HUD
   const hud = document.getElementById('hud');
   let last = performance.now(), frames=0, fps=0;
   function meter(){
