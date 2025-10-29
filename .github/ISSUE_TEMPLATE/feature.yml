@@ -1,0 +1,85 @@
+name: "🧩 Feature Request"
+description: "Schlage ein neues Feature oder eine Verbesserung für !mpact2d vor"
+title: "[Feature] <kurzer Titel>"
+labels: ["feature", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für deinen Vorschlag! Bitte fülle die Felder so präzise wie möglich aus.
+  - type: input
+    id: summary
+    attributes:
+      label: Kurzbeschreibung
+      description: Ein bis zwei Sätze – worum geht es?
+      placeholder: "Beispiel: Parallax-Layer mit dynamischen Faktoren zur Laufzeit ändern"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Kategorie
+      description: Welches Subsystem ist betroffen?
+      options:
+        - Core
+        - Renderer
+        - Physics
+        - Input
+        - UI
+        - Audio
+        - Save/Load
+        - Tooling/Docs
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorität
+      options:
+        - Low
+        - Normal
+        - High
+    validations:
+      required: true
+  - type: dropdown
+    id: target_version
+    attributes:
+      label: Ziel-Release (Roadmap)
+      description: Version laut Roadmap, in der das Feature landen soll
+      options:
+        - v0.5 (Tilemap System)
+        - v0.6 (Trigger Zones)
+        - v0.7 (Entity Factory)
+        - v0.8 (Audio Engine)
+        - v0.9 (Save/Load)
+        - v0.95 (Steuerung anpassbar & Touch)
+        - v1.0 (Demo Game)
+        - v1.1 (UI-System)
+        - v1.2 (Inventory-System)
+        - v1.3 (Design-Vorlagen)
+        - v1.4 (Baukastensystem)
+        - Ungeplant / Backlog
+  - type: textarea
+    id: details
+    attributes:
+      label: Details / Akzeptanzkriterien
+      description: Was genau soll umgesetzt werden? Wann gilt es als "fertig"?
+      placeholder: |
+        - Als Spieler*in kann ich meine Tastenbelegung zur Laufzeit ändern
+        - Touch-Overlay erscheint auf Mobilgeräten
+        - Einstellungen persistieren im LocalStorage
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Abhängigkeiten
+      description: Verlinke Issues/PRs, die vorher erledigt sein müssen (optional)
+      placeholder: "- Blockiert von #123"
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notizen / Anhänge
+      description: Links, Skizzen, Mockups (optional)
