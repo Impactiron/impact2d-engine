@@ -1,4 +1,4 @@
-const BUILD = "TILEMAP-COLLIDE-LAYERFIX-2025-10-29";
+const BUILD = "TRIGGERS-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -8,6 +8,7 @@ import { PixiRenderer } from './renderer-pixi.js';
 import { Sprite } from './sprite.js';
 import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
 import { TileTypes, moveWithTileCollisions } from './tilemap-physics.js';
+import { TriggerSystem } from './triggers.js';
 
 // Scene & Player
 const scene = new Scene('Root');
@@ -46,7 +47,7 @@ class CameraFollow extends Component {
   }
 }
 
-// Demo Tilemap (identisch): 0=floor, 1=wall, 2=lava, 3=water, 4=sand
+// Demo Tilemap: 0=floor, 1=wall, 2=lava, 3=water, 4=sand
 const W = 40, H = 30, TS = 32;
 const tiles = [];
 for(let y=0;y<H;y++){ 
@@ -77,13 +78,13 @@ const game = new Game();
 const renderer = new PixiRenderer();
 
 renderer.init().then(()=>{
-  // Make all gameplay layers factor 1.0 to keep visual and physics spaces identical
-  renderer.defineLayer('sky', 0.2);   // purely decorative background
-  renderer.defineLayer('far', 0.5);   // decorative parallax
-  renderer.defineLayer('world', 1.0); // NEW: world layer for collidable tiles
-  renderer.defineLayer('default', 1.0); // player & entities
+  // Layers
+  renderer.defineLayer('sky', 0.2);   // decorative only
+  renderer.defineLayer('far', 0.5);   // decorative only
+  renderer.defineLayer('world', 1.0); // collidable tiles
+  renderer.defineLayer('default', 1.0); // player
 
-  // Draw tilemap into the WORLD (factor 1.0) to match physics coordinates
+  // Draw tilemap into the WORLD layer
   const cont = renderer.getLayerContainer('world');
   for(let y=0;y<H;y++){ 
     for(let x=0;x<W;x++){ 
@@ -120,17 +121,49 @@ renderer.init().then(()=>{
   }
   player.addComponent(new TileCollisionResolver());
 
+  // === v0.6 Trigger Zones ===
+  const triggers = new TriggerSystem();
+  const hud = document.getElementById('hud');
+  let lastEvent = "";
+
+  // Helper to place zones in tile coords
+  const zone = (tx, ty, tw, th, opts={}) => ({ x: tx*TS, y: ty*TS, w: tw*TS, h: th*TS, ...opts });
+
+  // Example zones:
+  // 1) Spawn hint (once)
+  triggers.add(zone(3,2,2,1,{ tag:'hint', once:true, onEnter:() => { lastEvent='Hint: WASD / Pfeile bewegen'; } }));
+  // 2) Slow area info (stay)
+  triggers.add(zone(10,10,3,3,{ tag:'water-info', onStay:() => { lastEvent='Du bewegst dich langsamer (Wasser/Sand)'; } }));
+  // 3) Fake pickup (once)
+  triggers.add(zone(20,6,1,1,{ tag:'pickup', once:true, onEnter:() => { lastEvent='Item aufgenommen (+1)'; } }));
+  // 4) Danger tile (lava) enter/exit
+  triggers.add(zone(6,18,2,2,{ tag:'lava', onEnter:() => { lastEvent='Achtung: Heiß!'; }, onExit:() => { lastEvent='Puh, raus aus der Lava.'; } }));
+
+  class TriggerDriver extends Component {
+    onUpdate(){
+      const tr = player.getComponent(Transform);
+      const rect = { x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE };
+      triggers.tick(rect, { time: performance.now() });
+      // Render HUD
+      // Keep the classic FPS meter text, append lastEvent if present
+      const text = hud.textContent.split(' • FPS:')[0]; // keep left part
+      // We'll rewrite in meter() anyway; here we only store message
+    }
+  }
+  player.addComponent(new TriggerDriver());
+
   renderer.attach(scene);
   player.addComponent(new CameraFollow(renderer));
   game.start(scene);
-});
 
-// HUD
-let last = performance.now(), frames=0, fps=0;
-const hud = document.getElementById('hud');
-function meter(){
-  const now = performance.now(); frames++;
-  if(now - last >= 1000){ fps = frames; frames=0; last = now; hud.textContent = `!mpact2d • {BUILD} • FPS: ${fps}`; }
-  requestAnimationFrame(meter);
-}
-meter();
+  // HUD meter with event message
+  let last = performance.now(), frames=0, fps=0;
+  function meter(){
+    const now = performance.now(); frames++;
+    if(now - last >= 1000){ fps = frames; frames=0; last = now; }
+    const base = `!mpact2d • {BUILD} • FPS: ${fps}`;
+    hud.textContent = lastEvent ? base + ' • ' + lastEvent : base;
+    requestAnimationFrame(meter);
+  }
+  meter();
+});
