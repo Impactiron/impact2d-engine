@@ -33,4 +33,4 @@
 - Keine evals; LocalStorage nur für Saves; Events über Bus / Hooks.
 
 <!-- Auto-update 2025-10-29 -->
-- **v0.5 (Render)**: Tilemap-Grundstruktur mit farbigen Tiles (nur Rendering, keine Kollision).
+- **v0.6:** Trigger Zones (Enter/Stay/Exit), rechteckige Bereiche mit `once`-Option und Callback-Hooks.

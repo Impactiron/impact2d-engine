@@ -24,6 +24,7 @@ Alle relevanten Releases/Builds mit kurzer Zusammenfassung.
 - **Neu:** Assets-Stubs, Basis-Math, einfache APIs
 - **Setup:** Repo `impact2d-engine`, Actions-Workflow für Pages
 
-## 2025-10-29 — v0.5 (Render-only)
-- **Neu:** Tilemap-Grundstruktur (Rendering farbiger Tiles, PIXI Graphics)
-- **Hinweis:** noch **keine** Kollision mit Tiles (folgt in v0.5b)
+## 2025-10-29 — v0.6 Trigger Zones
+- **Neu:** `engine/triggers.js` – rechteckige Zonen mit **onEnter / onStay / onExit** und `once`
+- **Demo:** Vier Beispielzonen (Hint, Slow-Area, Pickup, Lava-Warnung) mit HUD-Text
+- **Build:** TRIGGERS-2025-10-29
