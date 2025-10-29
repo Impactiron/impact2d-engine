@@ -1,19 +1,9 @@
-# !mpact2d — GitHub Pages Package (No Install)
+# !mpact2d — GitHub Pages Package (Repo: impact2d-engine)
 
-Dies ist eine **Zero‑Install** Variante von **!mpact2d** für **GitHub Pages** / **Netlify**.
-Alles sind **ES‑Module** im Browser. Keine Builds, kein Node.
+## GitHub Pages unter `impact2d-engine`
+1. Repo **impact2d-engine** anlegen (public).
+2. Alle Dateien in die **Repo-Wurzel** committen.
+3. **Settings → Pages →** Deploy from **Branch**: `main` / **Root`.
+4. Öffnen: `https://impactiron.github.io/impact2d-engine/`
 
-## Deploy (GitHub Pages)
-1. Neues Repo erstellen (z. B. `impact2d-ghpages`).
-2. Inhalte dieses ZIPs an die **Repo‑Wurzel** hochladen und committen.
-3. In den **Repository Settings → Pages**: Deploy from **Branch: main / root**.
-4. Öffne die angezeigte Page‑URL (z. B. `https://<user>.github.io/impact2d-ghpages/`).
-
-## Struktur
-- `index.html` – Demo-Einstieg
-- `engine/` – Minimal-Engine (SceneGraph + Components + Loop)
-- `assets/` – Platzhalter für Bilder/JSON
-
-## Hinweis
-- PIXI wird per CDN geladen.
-- Diese Variante ist auf **Option B (SceneGraph + Components)** ausgelegt und bewusst minimal gehalten.
+Hinweis: Alle Pfade sind **relativ** gehalten – kein `base`-Tag nötig.
