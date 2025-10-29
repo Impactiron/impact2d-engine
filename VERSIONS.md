@@ -23,3 +23,7 @@ Alle relevanten Releases/Builds mit kurzer Zusammenfassung.
 - **Neu:** SceneGraph + Components, GameLoop (fixed + render), Input (Keyboard)
 - **Neu:** Assets-Stubs, Basis-Math, einfache APIs
 - **Setup:** Repo `impact2d-engine`, Actions-Workflow für Pages
+
+## 2025-10-29 — v0.5 (Render-only)
+- **Neu:** Tilemap-Grundstruktur (Rendering farbiger Tiles, PIXI Graphics)
+- **Hinweis:** noch **keine** Kollision mit Tiles (folgt in v0.5b)

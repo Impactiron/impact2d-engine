@@ -44,3 +44,10 @@ Format angelehnt an „Keep a Changelog“.
 - **Core Engine**: SceneGraph + Components, GameLoop (fixed+render), Input (Keyboard)
 - **Assets-Stubs**, Basis-Math
 - **Repo `impact2d-engine`** inkl. GitHub Actions für Pages-Deploy
+
+## [2025-10-29] – Build TILEMAP-RENDER
+### Added
+- **Tilemap (Render-only):** farbige Rechteck-Tiles via PIXI Graphics, Map 40×30, Tilegröße 32
+
+### Notes
+- Noch keine Tile-Kollision; folgt als eigener Patch.

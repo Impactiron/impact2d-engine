@@ -1,4 +1,4 @@
-const BUILD = "TILEMAP-RENDER-2025-10-29";
+const BUILD = "TILEMAP-COLLIDE-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -6,37 +6,36 @@ import { Game } from './game.js';
 import { Input } from './input.js';
 import { PixiRenderer } from './renderer-pixi.js';
 import { Sprite } from './sprite.js';
-import { Tilemap } from './tilemap.js';
 import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
+import { TileTypes, moveWithTileCollisions } from './tilemap-physics.js';
 
 // Scene & Player
 const scene = new Scene('Root');
 
 const player = new Node('Player');
 const t = player.addComponent(new Transform());
+const PLAYER_SIZE = 24;
 t.position.x = 32 * 3;
 t.position.y = 32 * 3;
-const playerSprite = player.addComponent(new Sprite('rect:24'));
+const playerSprite = player.addComponent(new Sprite('rect:'+PLAYER_SIZE));
 playerSprite.layer = 'default';
 scene.add(player);
 
-// Simple movement
+// Movement
 class MoveScript extends Component {
-  constructor(input){ super(); this.input = input; this.speed = 0.25; }
+  constructor(input, getSpeedMul){ super(); this.input = input; this.baseSpeed = 0.25; this.getSpeedMul = getSpeedMul; }
   onUpdate(dt){
     const tr = this.owner.getComponent(Transform);
     if(!tr) return;
-    const s = this.speed * dt;
-    if(this.input.get('ArrowLeft').down || this.input.get('KeyA').down) tr.position.x -= s;
-    if(this.input.get('ArrowRight').down || this.input.get('KeyD').down) tr.position.x += s;
-    if(this.input.get('ArrowUp').down || this.input.get('KeyW').down) tr.position.y -= s;
-    if(this.input.get('ArrowDown').down || this.input.get('KeyS').down) tr.position.y += s;
-    const spr = this.owner.getComponent(Sprite);
-    if(spr && spr._pixi){ spr._pixi.x = tr.position.x; spr._pixi.y = tr.position.y; }
+    const mul = this.getSpeedMul ? this.getSpeedMul() : 1.0;
+    const s = this.baseSpeed * dt * mul;
+    this.dx = 0; this.dy = 0;
+    if(this.input.get('ArrowLeft').down || this.input.get('KeyA').down) this.dx -= s;
+    if(this.input.get('ArrowRight').down || this.input.get('KeyD').down) this.dx += s;
+    if(this.input.get('ArrowUp').down || this.input.get('KeyW').down) this.dy -= s;
+    if(this.input.get('ArrowDown').down || this.input.get('KeyS').down) this.dy += s;
   }
 }
-const input = new Input();
-player.addComponent(new MoveScript(input));
 
 // Camera follow
 class CameraFollow extends Component {
@@ -47,21 +46,31 @@ class CameraFollow extends Component {
   }
 }
 
-// Build a demo tilemap (render-only)
-// 0 = floor, 1 = wall
+// Demo Tilemap (multitype): 0=floor, 1=wall, 2=lava, 3=water, 4=sand
 const W = 40, H = 30, TS = 32;
 const tiles = [];
-for(let y=0;y<H;y++){
+for(let y=0;y<H;y++){ 
   const row = [];
-  for(let x=0;x<W;x++){
-    if(x===0||y===0||x===W-1||y===H-1) row.push(1); // border walls
-    else if((x+y)%11===0) row.push(1);             // some pattern
-    else row.push(0);
+  for(let x=0;x<W;x++){ 
+    let v = 0;
+    if(x===0||y===0||x===W-1||y===H-1) v = 1; // border walls
+    else if((x+y)%13===0) v = 1;             // walls pattern
+    else if((x*y)%97===0) v = 2;             // lava dots
+    else if((x+2*y)%29===0) v = 3;           // water traces
+    else if((2*x+y)%31===0) v = 4;           // sand patches
+    row.push(v);
   }
   tiles.push(row);
 }
-const palette = { 0: 0x202733, 1: 0x586174 }; // darker floor, lighter walls
-const tilemap = new Tilemap({ tiles, tileSize: TS, palette });
+
+// Palette for rendering
+const palette = { 
+  0: 0x202733, // floor
+  1: 0x586174, // wall
+  2: 0xb24b36, // lava (reddish)
+  3: 0x2f6aa5, // water (blue)
+  4: 0xa68a5b, // sand (brownish)
+};
 
 // Start engine + renderer
 const game = new Game();
@@ -72,8 +81,8 @@ renderer.init().then(()=>{
   renderer.defineLayer('far', 0.5);
   renderer.defineLayer('mid', 0.8);
   renderer.defineLayer('default', 1.0);
-  
-  // Draw tilemap into 'mid' layer using PIXI Graphics
+
+  // Draw tilemap into 'mid' layer
   const cont = renderer.getLayerContainer('mid');
   for(let y=0;y<H;y++){ 
     for(let x=0;x<W;x++){ 
@@ -86,6 +95,31 @@ renderer.init().then(()=>{
       cont.addChild(g);
     }
   }
+
+  // Movement + Tile collisions
+  const input = new Input();
+  const mover = player.addComponent(new MoveScript(input, ()=>{ 
+    // Speed modifier based on tile under player's center
+    const cx = Math.floor((t.position.x + PLAYER_SIZE/2)/TS);
+    const cy = Math.floor((t.position.y + PLAYER_SIZE/2)/TS);
+    const id = (tiles[cy] && tiles[cy][cx]) ?? 0;
+    const mul = TileTypes[id]?.speedMul ?? 1.0;
+    return mul;
+  }));
+
+  class TileCollisionResolver extends Component {
+    onUpdate(){
+      const tr = this.owner.getComponent(Transform);
+      if(!tr) return;
+      const rectProvider = ()=>({ x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE });
+      const res = moveWithTileCollisions(this.owner, mover.dx||0, mover.dy||0, tiles, TS, rectProvider);
+      tr.position.x = res.x;
+      tr.position.y = res.y;
+      const spr = this.owner.getComponent(Sprite);
+      if(spr && spr._pixi){ spr._pixi.x = tr.position.x; spr._pixi.y = tr.position.y; }
+    }
+  }
+  player.addComponent(new TileCollisionResolver());
 
   renderer.attach(scene);
   player.addComponent(new CameraFollow(renderer));

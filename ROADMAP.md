@@ -31,3 +31,6 @@
 - TypeScript-API-Design (auch für JS nutzbar), ESM, keine Buildpflicht fürs Demo.  
 - PIXI-Adapter modular, Canvas-Fallback optional.  
 - Keine evals; LocalStorage nur für Saves; Events über Bus / Hooks.
+
+<!-- Auto-update 2025-10-29 -->
+- **v0.5 (Render)**: Tilemap-Grundstruktur mit farbigen Tiles (nur Rendering, keine Kollision).
