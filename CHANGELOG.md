@@ -45,7 +45,31 @@ Format angelehnt an „Keep a Changelog“.
 - **Assets-Stubs**, Basis-Math
 - **Repo `impact2d-engine`** inkl. GitHub Actions für Pages-Deploy
 
-## [2025-10-29] – Builds
-- **ENTITY-FACTORY-2025-10-29** (v0.7): `engine/factory.js` eingeführt (Prefabs & `spawn`), Demo-Spawns (crate, gem, bot)
-- **ENTITY-FACTORY-TRIGGERS-HOTFIX-2025-10-29** (v0.7b): Trigger-Zonen entlang Startkorridor, sichtbares Lavafeld, Pickup-Demo blendet `gem` aus
-- **ENTITY-FACTORY-GEMFIX-2025-10-29** (v0.7c): `gem` vergrößert & garantiert sichtbar (Tile 15,9), Pickup-Trigger exakt ausgerichtet
+## [2025-10-29] – v0.5 Tilemap & Grid Physics
+### Added
+- **Tilemap-Physik (Raster-basiert):** `moveWithTileCollisions(rect, dx, dy, map, tileSize)`
+- **Materialsystem für Tiles:** `wall`, `floor`, `water`, `sand`, `lava` mit `speedMul`/`lethal`-Flags
+- **Renderer-Layers vorbereitet:** `sky`, `far`, `mid`, `default` (Parallax-Unterstützung)
+
+## [2025-10-29] – v0.5a Hotfix (Kollisionspräzision)
+### Fixed
+- **Frühzeitiges Blockieren** behoben via **Inset** und **EPS** (präzise Kantenkollision)
+- Sampling-Rechteck minimal verkleinert → keine „unsichtbaren Wände“ an Diagonalen
+- Build: **TILEMAP-COLLIDE-HOTFIX-2025-10-29**
+
+## [2025-10-29] – v0.5b Hotfix (Layer-Ausrichtung)
+### Fixed
+- Tilemap von **Parallax-Layer** nach **`world` (Faktor 1.0)** verschoben →
+  Grafik- und Physikraum decken sich exakt (keine Abweichungen mehr)
+- Build: **TILEMAP-COLLIDE-LAYERFIX-2025-10-29**
+
+## [2025-10-29] – v0.6 Trigger Zones
+### Added
+- **`engine/triggers.js`**: Rechteck-Trigger mit **onEnter/onStay/onExit** und `once`
+- HUD zeigt kontextsensitive Meldungen beim Betreten/Verlassen
+
+## [2025-10-29] – v0.6a Hotfix
+### Fixed
+- **HUD** zeigte Platzhalter an → jetzt korrekter Build-Tag
+- **Demo-Level**: freier Startbereich + dünnere Diagonalen für bessere Testbarkeit
+- Build: **TRIGGERS-HOTFIX-2025-10-29**

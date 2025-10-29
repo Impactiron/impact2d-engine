@@ -32,11 +32,8 @@
 - PIXI-Adapter modular, Canvas-Fallback optional.  
 - Keine evals; LocalStorage nur für Saves; Events über Bus / Hooks.
 
-- **v0.6** ✅ Trigger Zones (Enter/Stay/Exit) – live
-- **v0.6a** ✅ HUD/Map Hotfix – live
-- **v0.7** ✅ Entity Factory (Prefabs & Spawn) – live
-- **v0.7b** ✅ Trigger- & Pickup-Demo Hotfix – live
-- **v0.7c** ✅ Gem-Fix (Sichtbarkeit & Pickup) – live
-- **v0.7d** ⏭ Entity-Collision Flags für Entities (optional)
-- **v0.7e** ⏭ Simple Behaviors: `pickup` (remove & counter), `patrol` (bot)
-- **v0.8** ⏭ JSON-Map-Lader + Spawnpunkte
+- **v0.5** ✅ Tilemap & Grid Physics (inkl. Materials)
+- **v0.5a** ✅ Hotfix Kollisionspräzision (Inset/EPS)
+- **v0.5b** ✅ Hotfix Layer-Ausrichtung (Tiles → world 1.0)
+- **v0.6** ✅ Trigger Zones
+- **v0.6a** ✅ HUD/Map Hotfix

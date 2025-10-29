@@ -24,15 +24,20 @@ Alle relevanten Releases/Builds mit kurzer Zusammenfassung.
 - **Neu:** Assets-Stubs, Basis-Math, einfache APIs
 - **Setup:** Repo `impact2d-engine`, Actions-Workflow für Pages
 
-## 2025-10-29 — v0.7 Entity Factory (Step 1)
-- Prefab-Registry & `spawn(name, options)`
-- Demo: crate/gem/bot (ohne Verhalten)
+## 2025-10-29 — v0.5 Tilemap & Grid Physics
+- Raster-Kollision (X/Y getrennt), präzise Kantenbehandlung
+- Tile-Typen mit `speedMul`/`lethal` (water/sand/lava)
 
-## 2025-10-29 — v0.7b Hotfix
-- Trigger-HUD verlässlich: Zonen an Startkorridor
-- Sichtbares Lavafeld (x 22–24, y 8–9)
-- Pickup-Demo: `gem` blendet bei Betreten aus
+## 2025-10-29 — v0.5a Hotfix
+- Kollisionspräzision: **Inset + EPS** gegen „zu frühes“ Blockieren
+- Build: TILEMAP-COLLIDE-HOTFIX-2025-10-29
 
-## 2025-10-29 — v0.7c Gem-Fix
-- `gem` auf (15,9), Größe 24 px
-- Pickup-Trigger deckungsgleich; HUD „Item aufgenommen (+1)“
+## 2025-10-29 — v0.5b Hotfix
+- Layer-Abgleich: Tiles → `world` (1.0), keine Parallax-Abweichung
+- Build: TILEMAP-COLLIDE-LAYERFIX-2025-10-29
+
+## 2025-10-29 — v0.6 Trigger Zones
+- `onEnter/onStay/onExit`, `once`, Demo-Zonen mit HUD-Text
+
+## 2025-10-29 — v0.6a Hotfix
+- HUD-Build fix, Startbereich frei, Diagonalen ausgedünnt
