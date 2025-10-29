@@ -1,4 +1,4 @@
-const BUILD = "ENTITY-FACTORY-2025-10-29";
+const BUILD = "ENTITY-FACTORY-TRIGGERS-HOTFIX-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -48,7 +48,7 @@ class CameraFollow extends Component {
   }
 }
 
-// Tilemap (same as v0.6a simplified)
+// Tilemap
 const W = 40, H = 30, TS = 32;
 const tiles = [];
 for(let y=0;y<H;y++){
@@ -64,9 +64,11 @@ for(let y=0;y<H;y++){
   }
   tiles.push(row);
 }
-// carve free start area
+// carve free start area + corridor
 for(let yy=1; yy<=10; yy++){ for(let xx=1; xx<=12; xx++){ tiles[yy][xx] = 0; } }
-for(let yy=8; yy<=10; yy++){ for(let xx=12; xx<=20; xx++){ tiles[yy][xx] = 0; } }
+for(let yy=8; yy<=10; yy++){ for(let xx=12; xx<=24; xx++){ tiles[yy][xx] = 0; } }
+// ADD: visible lava patch near corridor (so it's guaranteed on-screen)
+for(let yy=8; yy<=9; yy++){ for(let xx=22; xx<=24; xx++){ tiles[yy][xx] = 2; } }
 
 const palette = { 0:0x202733, 1:0x586174, 2:0xb24b36, 3:0x2f6aa5, 4:0xa68a5b };
 
@@ -75,11 +77,9 @@ const game = new Game();
 const renderer = new PixiRenderer();
 
 renderer.init().then(()=>{
-  // Layers
   renderer.defineLayer('world', 1.0);
   renderer.defineLayer('default', 1.0);
 
-  // Draw tilemap
   const cont = renderer.getLayerContainer('world');
   for(let y=0;y<H;y++){
     for(let x=0;x<W;x++){
@@ -113,18 +113,39 @@ renderer.init().then(()=>{
   }
   playerNode.addComponent(new TileCollisionResolver());
 
-  // === v0.7: Entity Factory (simple) ===
+  // === v0.7: Entity Factory (simple)
   const factory = new EntityFactory();
   factory.register('crate', { sprite:'rect:18', layer:'default', props:{ loot:1 } });
   factory.register('gem',   { sprite:'rect:12', layer:'default', props:{ value:10 } });
   factory.register('bot',   { sprite:'rect:16', layer:'default', props:{ hp:5 } });
 
-  const entities = [
-    factory.spawn('crate', { x: 18*TS, y: 9*TS }),
-    factory.spawn('gem',   { x: 16*TS, y: 9*TS }),
-    factory.spawn('bot',   { x: 20*TS, y: 9*TS }),
-  ];
-  for (const e of entities) scene.add(e);
+  const gem = factory.spawn('gem',   { x: 16*TS, y: 9*TS });
+  const crate = factory.spawn('crate', { x: 18*TS, y: 9*TS });
+  const bot = factory.spawn('bot',   { x: 20*TS, y: 9*TS });
+  scene.add(gem); scene.add(crate); scene.add(bot);
+
+  // === Triggers with HUD messages (guaranteed near start)
+  const triggers = new TriggerSystem();
+  let lastEvent = "";
+
+  const zone = (tx, ty, tw, th, opts={}) => ({ x: tx*TS, y: ty*TS, w: tw*TS, h: th*TS, ...opts });
+  // 1) Hint
+  triggers.add(zone(3,2,3,2,{ tag:'hint', once:true, onEnter:() => { lastEvent='Tipp: WASD oder Pfeile zum Bewegen'; } }));
+  // 2) Slow area info (stay)
+  triggers.add(zone(14,9,2,2,{ tag:'slow-info', onStay:() => { lastEvent='Hinweis: Wasser/Sand verlangsamen'; } }));
+  // 3) Pickup: hide gem
+  triggers.add(zone(16,9,1,1,{ tag:'pickup', once:true, onEnter:() => { lastEvent='Item aufgenommen (+1)'; if(gem && gem.getComponent) { const s = gem.getComponent(Sprite); if(s && s._pixi) s._pixi.visible = false; } } }));
+  // 4) Lava warning (over the visible patch)
+  triggers.add(zone(22,8,3,2,{ tag:'lava', onEnter:() => { lastEvent='Achtung: Lava!'; }, onExit:() => { lastEvent='Raus aus der Lava.'; } }));
+
+  class TriggerDriver extends Component {
+    onUpdate(){
+      const tr = playerNode.getComponent(Transform);
+      const rect = { x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE };
+      triggers.tick(rect, { time: performance.now() });
+    }
+  }
+  playerNode.addComponent(new TriggerDriver());
 
   renderer.attach(scene);
   playerNode.addComponent(new CameraFollow(renderer));
@@ -136,7 +157,8 @@ renderer.init().then(()=>{
   function meter(){
     const now = performance.now(); frames++;
     if(now - last >= 1000){ fps = frames; frames=0; last = now; }
-    hud.textContent = '!mpact2d • ' + BUILD + ' • FPS: ' + fps;
+    const base = '!mpact2d • ' + BUILD + ' • FPS: ' + fps;
+    hud.textContent = lastEvent ? base + ' • ' + lastEvent : base;
     requestAnimationFrame(meter);
   }
   meter();
