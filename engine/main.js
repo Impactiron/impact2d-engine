@@ -1,4 +1,4 @@
-const BUILD = "TRIGGERS-HOTFIX-2025-10-29";
+const BUILD = "ENTITY-FACTORY-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -9,18 +9,21 @@ import { Sprite } from './sprite.js';
 import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
 import { TileTypes, moveWithTileCollisions } from './tilemap-physics.js';
 import { TriggerSystem } from './triggers.js';
+import { EntityFactory } from './factory.js';
 
+// Scene & Player
 const scene = new Scene('Root');
-
-const player = new Node('Player');
-const t = player.addComponent(new Transform());
 const PLAYER_SIZE = 24;
+
+const playerNode = new Node('Player');
+const t = playerNode.addComponent(new Transform());
 t.position.x = 32 * 3;
 t.position.y = 32 * 3;
-const playerSprite = player.addComponent(new Sprite('rect:'+PLAYER_SIZE));
+const playerSprite = playerNode.addComponent(new Sprite('rect:'+PLAYER_SIZE));
 playerSprite.layer = 'default';
-scene.add(player);
+scene.add(playerNode);
 
+// Movement
 class MoveScript extends Component {
   constructor(input, getSpeedMul){ super(); this.input = input; this.baseSpeed = 0.25; this.getSpeedMul = getSpeedMul; this.dx=0; this.dy=0; }
   onUpdate(dt){
@@ -36,6 +39,7 @@ class MoveScript extends Component {
   }
 }
 
+// Camera follow
 class CameraFollow extends Component {
   constructor(renderer){ super(); this.r = renderer; }
   onUpdate(){ 
@@ -44,6 +48,7 @@ class CameraFollow extends Component {
   }
 }
 
+// Tilemap (same as v0.6a simplified)
 const W = 40, H = 30, TS = 32;
 const tiles = [];
 for(let y=0;y<H;y++){
@@ -59,22 +64,22 @@ for(let y=0;y<H;y++){
   }
   tiles.push(row);
 }
+// carve free start area
 for(let yy=1; yy<=10; yy++){ for(let xx=1; xx<=12; xx++){ tiles[yy][xx] = 0; } }
 for(let yy=8; yy<=10; yy++){ for(let xx=12; xx<=20; xx++){ tiles[yy][xx] = 0; } }
 
-const palette = { 
-  0: 0x202733, 1: 0x586174, 2: 0xb24b36, 3: 0x2f6aa5, 4: 0xa68a5b
-};
+const palette = { 0:0x202733, 1:0x586174, 2:0xb24b36, 3:0x2f6aa5, 4:0xa68a5b };
 
+// Start
 const game = new Game();
 const renderer = new PixiRenderer();
 
 renderer.init().then(()=>{
-  renderer.defineLayer('sky', 0.2);
-  renderer.defineLayer('far', 0.5);
+  // Layers
   renderer.defineLayer('world', 1.0);
   renderer.defineLayer('default', 1.0);
 
+  // Draw tilemap
   const cont = renderer.getLayerContainer('world');
   for(let y=0;y<H;y++){
     for(let x=0;x<W;x++){
@@ -82,14 +87,14 @@ renderer.init().then(()=>{
       const col = palette[v] ?? 0x333333;
       const g = new Graphics();
       g.rect(0,0,TS,TS).fill(col);
-      g.x = x*TS;
-      g.y = y*TS;
+      g.x = x*TS; g.y = y*TS;
       cont.addChild(g);
     }
   }
 
+  // Movement + collisions
   const input = new Input();
-  const mover = player.addComponent(new MoveScript(input, ()=>{ 
+  const mover = playerNode.addComponent(new MoveScript(input, ()=>{
     const cx = Math.floor((t.position.x + PLAYER_SIZE/2)/TS);
     const cy = Math.floor((t.position.y + PLAYER_SIZE/2)/TS);
     const id = (tiles[cy] && tiles[cy][cx]) ?? 0;
@@ -98,46 +103,40 @@ renderer.init().then(()=>{
 
   class TileCollisionResolver extends Component {
     onUpdate(){
-      const tr = this.owner.getComponent(Transform);
-      if(!tr) return;
+      const tr = playerNode.getComponent(Transform);
       const rectProvider = ()=>({ x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE });
-      const res = moveWithTileCollisions(this.owner, mover.dx||0, mover.dy||0, tiles, TS, rectProvider);
-      tr.position.x = res.x;
-      tr.position.y = res.y;
-      const spr = this.owner.getComponent(Sprite);
+      const res = moveWithTileCollisions(playerNode, mover.dx||0, mover.dy||0, tiles, TS, rectProvider);
+      tr.position.x = res.x; tr.position.y = res.y;
+      const spr = playerNode.getComponent(Sprite);
       if(spr && spr._pixi){ spr._pixi.x = tr.position.x; spr._pixi.y = tr.position.y; }
     }
   }
-  player.addComponent(new TileCollisionResolver());
+  playerNode.addComponent(new TileCollisionResolver());
 
-  const triggers = new TriggerSystem();
-  let lastEvent = "";
-  const zone = (tx, ty, tw, th, opts={}) => ({ x: tx*TS, y: ty*TS, w: tw*TS, h: th*TS, ...opts });
-  triggers.add(zone(3,2,2,1,{ tag:'hint', once:true, onEnter:() => { lastEvent='Hint: WASD / Pfeile bewegen'; } }));
-  triggers.add(zone(10,10,3,3,{ tag:'water-info', onStay:() => { lastEvent='Du bewegst dich langsamer (Wasser/Sand)'; } }));
-  triggers.add(zone(20,6,1,1,{ tag:'pickup', once:true, onEnter:() => { lastEvent='Item aufgenommen (+1)'; } }));
-  triggers.add(zone(6,18,2,2,{ tag:'lava', onEnter:() => { lastEvent='Achtung: Heiß!'; }, onExit:() => { lastEvent='Puh, raus aus der Lava.'; } }));
+  // === v0.7: Entity Factory (simple) ===
+  const factory = new EntityFactory();
+  factory.register('crate', { sprite:'rect:18', layer:'default', props:{ loot:1 } });
+  factory.register('gem',   { sprite:'rect:12', layer:'default', props:{ value:10 } });
+  factory.register('bot',   { sprite:'rect:16', layer:'default', props:{ hp:5 } });
 
-  class TriggerDriver extends Component {
-    onUpdate(){
-      const tr = player.getComponent(Transform);
-      const rect = { x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE };
-      triggers.tick(rect, { time: performance.now() });
-    }
-  }
-  player.addComponent(new TriggerDriver());
+  const entities = [
+    factory.spawn('crate', { x: 18*TS, y: 9*TS }),
+    factory.spawn('gem',   { x: 16*TS, y: 9*TS }),
+    factory.spawn('bot',   { x: 20*TS, y: 9*TS }),
+  ];
+  for (const e of entities) scene.add(e);
 
   renderer.attach(scene);
-  player.addComponent(new CameraFollow(renderer));
+  playerNode.addComponent(new CameraFollow(renderer));
   game.start(scene);
 
+  // HUD
   const hud = document.getElementById('hud');
   let last = performance.now(), frames=0, fps=0;
   function meter(){
     const now = performance.now(); frames++;
     if(now - last >= 1000){ fps = frames; frames=0; last = now; }
-    const base = '!mpact2d • ' + BUILD + ' • FPS: ' + fps;
-    hud.textContent = lastEvent ? base + ' • ' + lastEvent : base;
+    hud.textContent = '!mpact2d • ' + BUILD + ' • FPS: ' + fps;
     requestAnimationFrame(meter);
   }
   meter();
