@@ -24,7 +24,6 @@ export class PixiRenderer {
   }
 
   defineLayer(name, factor=1){
-    // Create or update a layer with parallax factor
     let entry = this.layers.get(name);
     if(!entry){
       const container = new Container();
@@ -53,21 +52,38 @@ export class PixiRenderer {
     );
   }
 
+  _makeRectFromSpec(spec){
+    // spec can be 'rect:56' or 'rect:56x24'
+    let w = 48, h = 48;
+    try{
+      const body = spec.split(':')[1] ?? '48';
+      if(body.includes('x')){
+        const [sw, sh] = body.split('x');
+        w = Math.max(1, parseInt(sw,10)||48);
+        h = Math.max(1, parseInt(sh,10)||48);
+      } else {
+        const s = Math.max(1, parseInt(body,10)||48);
+        w = s; h = s;
+      }
+    } catch(e){}
+    const g = new Graphics().rect(0,0,w,h).fill(0xffffff);
+    g.__impact2d_size = {w,h};
+    return g;
+  }
+
   attach(scene){
     const create = (node)=>{
       const comps = node.getComponents?.(Sprite) || [];
       for(const c of comps){
         let display;
         if(typeof c.texture === 'string' && c.texture.startsWith('rect:')){
-          const size = parseInt(c.texture.split(':')[1] || '48', 10);
-          display = new Graphics().rect(0,0,size,size).fill(0xffffff);
+          display = this._makeRectFromSpec(c.texture);
         } else if (c.texture){
           display = PixiSprite.from(c.texture);
         } else {
-          display = new Graphics().rect(0,0,48,48).fill(0xffffff);
+          display = this._makeRectFromSpec('rect:48');
         }
 
-        // ensure layer exists
         let entry = this.layers.get(c.layer || 'default');
         if(!entry){
           this.defineLayer(c.layer || 'default', 1);
@@ -75,7 +91,6 @@ export class PixiRenderer {
         }
         entry.container.addChild(display);
 
-        // initial world position (Transform if present)
         const tr = node.getComponent?.(Transform);
         if(tr){
           display.x = tr.position.x;
@@ -86,7 +101,6 @@ export class PixiRenderer {
       for(const ch of node.children) create(ch);
     };
     create(scene);
-    // re-apply camera to all layers at end
     for(const entry of this.layers.values()) this._applyCameraTo(entry);
   }
 }
