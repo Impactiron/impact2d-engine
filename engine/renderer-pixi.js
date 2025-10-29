@@ -29,7 +29,6 @@ export class PixiRenderer {
           display = new Graphics().rect(0,0,48,48).fill(0xffffff);
         }
 
-        // place on layer
         let layer = this.layers.get(c.layer);
         if(!layer){
           layer = new Container();
@@ -37,11 +36,7 @@ export class PixiRenderer {
           this.app.stage.addChild(layer);
         }
         layer.addChild(display);
-
-        // initial position sync (0,0 if no Transform set yet)
         c._pixi = display;
-        const tr = node.getComponent?.(/* Transform is not imported here */ function(){}) || null;
-        // We can't import Transform here cleanly; main.js sets position every frame.
       }
       for(const ch of node.children) create(ch);
     };
