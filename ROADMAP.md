@@ -32,5 +32,11 @@
 - PIXI-Adapter modular, Canvas-Fallback optional.  
 - Keine evals; LocalStorage nur für Saves; Events über Bus / Hooks.
 
-<!-- Auto-update 2025-10-29 -->
-- **v0.6:** Trigger Zones (Enter/Stay/Exit), rechteckige Bereiche mit `once`-Option und Callback-Hooks.
+- **v0.6** ✅ Trigger Zones (Enter/Stay/Exit) – live
+- **v0.6a** ✅ HUD/Map Hotfix – live
+- **v0.7** ✅ Entity Factory (Prefabs & Spawn) – live
+- **v0.7b** ✅ Trigger- & Pickup-Demo Hotfix – live
+- **v0.7c** ✅ Gem-Fix (Sichtbarkeit & Pickup) – live
+- **v0.7d** ⏭ Entity-Collision Flags für Entities (optional)
+- **v0.7e** ⏭ Simple Behaviors: `pickup` (remove & counter), `patrol` (bot)
+- **v0.8** ⏭ JSON-Map-Lader + Spawnpunkte

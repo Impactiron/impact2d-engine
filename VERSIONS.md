@@ -24,7 +24,15 @@ Alle relevanten Releases/Builds mit kurzer Zusammenfassung.
 - **Neu:** Assets-Stubs, Basis-Math, einfache APIs
 - **Setup:** Repo `impact2d-engine`, Actions-Workflow für Pages
 
-## 2025-10-29 — v0.6 Trigger Zones
-- **Neu:** `engine/triggers.js` – rechteckige Zonen mit **onEnter / onStay / onExit** und `once`
-- **Demo:** Vier Beispielzonen (Hint, Slow-Area, Pickup, Lava-Warnung) mit HUD-Text
-- **Build:** TRIGGERS-2025-10-29
+## 2025-10-29 — v0.7 Entity Factory (Step 1)
+- Prefab-Registry & `spawn(name, options)`
+- Demo: crate/gem/bot (ohne Verhalten)
+
+## 2025-10-29 — v0.7b Hotfix
+- Trigger-HUD verlässlich: Zonen an Startkorridor
+- Sichtbares Lavafeld (x 22–24, y 8–9)
+- Pickup-Demo: `gem` blendet bei Betreten aus
+
+## 2025-10-29 — v0.7c Gem-Fix
+- `gem` auf (15,9), Größe 24 px
+- Pickup-Trigger deckungsgleich; HUD „Item aufgenommen (+1)“

@@ -45,7 +45,7 @@ Format angelehnt an „Keep a Changelog“.
 - **Assets-Stubs**, Basis-Math
 - **Repo `impact2d-engine`** inkl. GitHub Actions für Pages-Deploy
 
-## [2025-10-29] – Build TRIGGERS-2025-10-29
-### Added
-- **TriggerSystem:** rechteckige **Trigger-Zonen** mit `onEnter`, `onStay`, `onExit`, `once`
-- **Demo-Zonen:** Hint, Slow-Area, Pickup, Lava-Warnung; Anzeige via HUD-Text
+## [2025-10-29] – Builds
+- **ENTITY-FACTORY-2025-10-29** (v0.7): `engine/factory.js` eingeführt (Prefabs & `spawn`), Demo-Spawns (crate, gem, bot)
+- **ENTITY-FACTORY-TRIGGERS-HOTFIX-2025-10-29** (v0.7b): Trigger-Zonen entlang Startkorridor, sichtbares Lavafeld, Pickup-Demo blendet `gem` aus
+- **ENTITY-FACTORY-GEMFIX-2025-10-29** (v0.7c): `gem` vergrößert & garantiert sichtbar (Tile 15,9), Pickup-Trigger exakt ausgerichtet
