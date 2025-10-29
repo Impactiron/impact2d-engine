@@ -1,5 +1,5 @@
 // Tilemap physics (grid-based) for !mpact2d
-// Configurable tile type registry with flags/props.
+// HOTFIX: precise collisions (no early blocking) via inset sampling & stable EPS.
 
 export const TileTypes = {
   // id: { name, solid, speedMul, lethal, friction, custom?: any }
@@ -16,37 +16,42 @@ export function isSolid(id){ return !!getTileProps(id).solid; }
 export function speedMulFor(id){ return getTileProps(id).speedMul ?? 1.0; }
 export function isLethal(id){ return !!getTileProps(id).lethal; }
 
-export function rectOverlappingTiles(rect, tileSize){
+const EPS  = 1e-3;   // numerical tolerance
+const INSET = 0.1;   // shrink sampling rect by this many pixels on each side
+
+function rectOverlappingTilesStrict(rect, tileSize){
+  const x = rect.x + INSET;
+  const y = rect.y + INSET;
+  const w = Math.max(0, rect.w - 2*INSET);
+  const h = Math.max(0, rect.h - 2*INSET);
+  const x0 = Math.floor((x + EPS) / tileSize);
+  const y0 = Math.floor((y + EPS) / tileSize);
+  const x1 = Math.floor(((x + w) - EPS) / tileSize);
+  const y1 = Math.floor(((y + h) - EPS) / tileSize);
   const tiles = [];
-  const x0 = Math.floor(rect.x / tileSize);
-  const y0 = Math.floor(rect.y / tileSize);
-  const x1 = Math.floor((rect.x + rect.w - 1e-6) / tileSize);
-  const y1 = Math.floor((rect.y + rect.h - 1e-6) / tileSize);
-  for(let y=y0; y<=y1; y++){
-    for(let x=x0; x<=x1; x++){
-      tiles.push({x,y});
+  for(let ty=y0; ty<=y1; ty++){
+    for(let tx=x0; tx<=x1; tx++){
+      tiles.push({x:tx,y:ty});
     }
   }
   return tiles;
 }
 
 export function moveWithTileCollisions(node, dx, dy, map2D, tileSize, rectProvider){
-  // rectProvider(): returns {x,y,w,h} for the node BEFORE movement
-  const rect0 = rectProvider();
-  let rx = rect0.x, ry = rect0.y;
-  const rw = rect0.w, rh = rect0.h;
-  const eps = 0.001;
+  const r0 = rectProvider();
+  let rx = r0.x, ry = r0.y;
+  const rw = r0.w, rh = r0.h;
 
   // Move X axis
   rx += dx;
   let rectX = { x: rx, y: ry, w: rw, h: rh };
-  for(const t of rectOverlappingTiles(rectX, tileSize)){
+  for(const t of rectOverlappingTilesStrict(rectX, tileSize)){
     const v = (map2D[t.y] && map2D[t.y][t.x]) ?? 0;
     if(isSolid(v)){
       if(dx > 0){
-        rx = t.x * tileSize - rw - eps;
+        rx = t.x * tileSize - rw - EPS;
       } else if (dx < 0){
-        rx = (t.x + 1) * tileSize + eps;
+        rx = (t.x + 1) * tileSize + EPS;
       }
       rectX.x = rx;
     }
@@ -55,13 +60,13 @@ export function moveWithTileCollisions(node, dx, dy, map2D, tileSize, rectProvid
   // Move Y axis
   ry += dy;
   let rectY = { x: rx, y: ry, w: rw, h: rh };
-  for(const t of rectOverlappingTiles(rectY, tileSize)){
+  for(const t of rectOverlappingTilesStrict(rectY, tileSize)){
     const v = (map2D[t.y] && map2D[t.y][t.x]) ?? 0;
     if(isSolid(v)){
       if(dy > 0){
-        ry = t.y * tileSize - rh - 0.001;
+        ry = t.y * tileSize - rh - EPS;
       } else if (dy < 0){
-        ry = (t.y + 1) * tileSize + 0.001;
+        ry = (t.y + 1) * tileSize + EPS;
       }
       rectY.y = ry;
     }

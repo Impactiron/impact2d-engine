@@ -1,4 +1,4 @@
-const BUILD = "TILEMAP-COLLIDE-2025-10-29";
+const BUILD = "TILEMAP-COLLIDE-HOTFIX-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -23,7 +23,7 @@ scene.add(player);
 
 // Movement
 class MoveScript extends Component {
-  constructor(input, getSpeedMul){ super(); this.input = input; this.baseSpeed = 0.25; this.getSpeedMul = getSpeedMul; }
+  constructor(input, getSpeedMul){ super(); this.input = input; this.baseSpeed = 0.25; this.getSpeedMul = getSpeedMul; this.dx=0; this.dy=0; }
   onUpdate(dt){
     const tr = this.owner.getComponent(Transform);
     if(!tr) return;
@@ -46,7 +46,7 @@ class CameraFollow extends Component {
   }
 }
 
-// Demo Tilemap (multitype): 0=floor, 1=wall, 2=lava, 3=water, 4=sand
+// Demo Tilemap (identisch zur vorherigen Version)
 const W = 40, H = 30, TS = 32;
 const tiles = [];
 for(let y=0;y<H;y++){ 
@@ -99,12 +99,10 @@ renderer.init().then(()=>{
   // Movement + Tile collisions
   const input = new Input();
   const mover = player.addComponent(new MoveScript(input, ()=>{ 
-    // Speed modifier based on tile under player's center
     const cx = Math.floor((t.position.x + PLAYER_SIZE/2)/TS);
     const cy = Math.floor((t.position.y + PLAYER_SIZE/2)/TS);
     const id = (tiles[cy] && tiles[cy][cx]) ?? 0;
-    const mul = TileTypes[id]?.speedMul ?? 1.0;
-    return mul;
+    return (TileTypes[id]?.speedMul ?? 1.0);
   }));
 
   class TileCollisionResolver extends Component {
