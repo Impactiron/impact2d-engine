@@ -1,4 +1,4 @@
-const BUILD = "ENTITY-COLLISION-HOTFIX2-2025-10-29";
+const BUILD = "BEHAVIOR-PICKUP-2025-10-30";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -11,7 +11,9 @@ import { TileTypes, moveWithTileCollisions } from './tilemap-physics.js';
 import { TriggerSystem } from './triggers.js';
 import { EntityFactory } from './factory.js';
 import { getColliders } from './collider.js';
+import { PickupBehavior } from './behaviors.js';
 
+// Scene & Player
 const scene = new Scene('Root');
 const PLAYER_SIZE = 24;
 
@@ -23,6 +25,7 @@ const playerSprite = playerNode.addComponent(new Sprite('rect:'+PLAYER_SIZE));
 playerSprite.layer = 'default';
 scene.add(playerNode);
 
+// Movement
 class MoveScript extends Component {
   constructor(input, getSpeedMul){ super(); this.input = input; this.baseSpeed = 0.25; this.getSpeedMul = getSpeedMul; this.dx=0; this.dy=0; }
   onUpdate(dt){
@@ -38,6 +41,7 @@ class MoveScript extends Component {
   }
 }
 
+// Camera follow
 class CameraFollow extends Component {
   constructor(renderer){ super(); this.r = renderer; }
   onUpdate(){ 
@@ -46,6 +50,7 @@ class CameraFollow extends Component {
   }
 }
 
+// Tilemap
 const W = 40, H = 30, TS = 32;
 const tiles = [];
 for(let y=0;y<H;y++){
@@ -64,10 +69,11 @@ for(let y=0;y<H;y++){
 for(let yy=1; yy<=10; yy++){ for(let xx=1; xx<=12; xx++){ tiles[yy][xx] = 0; } }
 for(let yy=8; yy<=10; yy++){ for(let xx=12; xx<=24; xx++){ tiles[yy][xx] = 0; } }
 for(let yy=8; yy<=9; yy++){ for(let xx=22; xx<=24; xx++){ tiles[yy][xx] = 2; } }
-tiles[9][15] = 0;
+tiles[9][15] = 0; // gem tile guarantee
 
 const palette = { 0:0x202733, 1:0x586174, 2:0xb24b36, 3:0x2f6aa5, 4:0xa68a5b };
 
+// Start
 const game = new Game();
 const renderer = new PixiRenderer();
 
@@ -128,6 +134,7 @@ renderer.init().then(()=>{
   }
   playerNode.addComponent(new TileAndEntityCollisionResolver());
 
+  // Factory & Entities
   const factory = new EntityFactory();
   factory.register('crate', { sprite:'rect:18', layer:'default', props:{ loot:1 }, collider:{ size:18, solid:true } });
   factory.register('gem',   { sprite:'rect:24', layer:'default', props:{ value:10 }, collider:null });
@@ -138,13 +145,25 @@ renderer.init().then(()=>{
   const bot = factory.spawn('bot',   { x: 20*TS, y: 9*TS });
   scene.add(gem); scene.add(crate); scene.add(bot);
 
+  // === Behavior: Pickup (for gem)
+  let gemCount = 0;
+  gem.addComponent(new PickupBehavior(playerNode, {
+    size: 24,
+    playerSize: PLAYER_SIZE,
+    onPickup: () => { 
+      gemCount += 1; 
+      lastEvent = 'Item collected (+1)';
+    }
+  }));
+
+  // Triggers + HUD (keep hints & lava, remove old pickup trigger)
   const triggers = new TriggerSystem();
   let lastEvent = "";
   const zone = (tx, ty, tw, th, opts={}) => ({ x: tx*TS, y: ty*TS, w: tw*TS, h: th*TS, ...opts });
-  triggers.add(zone(3,2,3,2,{ tag:'hint', once:true, onEnter:() => { lastEvent='Tipp: WASD oder Pfeile zum Bewegen'; } }));
-  triggers.add(zone(14,9,2,2,{ tag:'slow-info', onStay:() => { lastEvent='Hinweis: Wasser/Sand verlangsamen'; } }));
-  triggers.add(zone(15,9,1,1,{ tag:'pickup', once:true, onEnter:() => { lastEvent='Item aufgenommen (+1)'; if(gem && gem.getComponent) { const s = gem.getComponent(Sprite); if(s && s._pixi) s._pixi.visible = false; } } }));
-  triggers.add(zone(22,8,3,2,{ tag:'lava', onEnter:() => { lastEvent='Achtung: Lava!'; }, onExit:() => { lastEvent='Raus aus der Lava.'; } }));
+  triggers.add(zone(3,2,3,2,{ tag:'hint', once:true, onEnter:() => { lastEvent='Tip: use WASD or Arrow keys'; } }));
+  triggers.add(zone(14,9,2,2,{ tag:'slow-info', onStay:() => { lastEvent='Info: water/sand slow movement'; } }));
+  // removed: pickup trigger (handled by behavior now)
+  triggers.add(zone(22,8,3,2,{ tag:'lava', onEnter:() => { lastEvent='Warning: lava!'; }, onExit:() => { lastEvent='Leaving lava.'; } }));
 
   class TriggerDriver extends Component {
     onUpdate(){
@@ -155,16 +174,18 @@ renderer.init().then(()=>{
   }
   playerNode.addComponent(new TriggerDriver());
 
+  // Attach scene & start
   const hud = document.getElementById('hud');
   renderer.attach(scene);
   playerNode.addComponent(new CameraFollow(renderer));
   game.start(scene);
 
+  // HUD meter with gem counter
   let last = performance.now(), frames=0, fps=0;
   function meter(){
     const now = performance.now(); frames++;
     if(now - last >= 1000){ fps = frames; frames=0; last = now; }
-    const base = '!mpact2d • ' + BUILD + ' • FPS: ' + fps;
+    const base = '!mpact2d • ' + BUILD + ' • FPS: ' + fps + ' • Gems: ' + gemCount;
     hud.textContent = lastEvent ? base + ' • ' + lastEvent : base;
     requestAnimationFrame(meter);
   }
