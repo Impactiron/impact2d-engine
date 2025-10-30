@@ -1,4 +1,4 @@
-const BUILD = "BEHAVIOR-PATROL-2025-10-30";
+const BUILD = "BEHAVIOR-PATROL-HOTFIX-2025-10-30";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -150,7 +150,7 @@ renderer.init().then(()=>{
 
   // === Behavior: Pickup (for gem)
   let gemCount = 0;
-  gem.addComponent(new PickupBehavior, PatrolBehavior(playerNode, {
+  gem.addComponent(new PickupBehavior(playerNode, {
     size: 24,
     playerSize: PLAYER_SIZE,
     onPickup: () => { 
