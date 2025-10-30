@@ -1,4 +1,4 @@
-const BUILD = "ENTITY-COLLISION-HOTFIX-2025-10-29";
+const BUILD = "ENTITY-COLLISION-HOTFIX2-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -145,6 +145,15 @@ renderer.init().then(()=>{
   triggers.add(zone(14,9,2,2,{ tag:'slow-info', onStay:() => { lastEvent='Hinweis: Wasser/Sand verlangsamen'; } }));
   triggers.add(zone(15,9,1,1,{ tag:'pickup', once:true, onEnter:() => { lastEvent='Item aufgenommen (+1)'; if(gem && gem.getComponent) { const s = gem.getComponent(Sprite); if(s && s._pixi) s._pixi.visible = false; } } }));
   triggers.add(zone(22,8,3,2,{ tag:'lava', onEnter:() => { lastEvent='Achtung: Lava!'; }, onExit:() => { lastEvent='Raus aus der Lava.'; } }));
+
+  class TriggerDriver extends Component {
+    onUpdate(){
+      const tr = playerNode.getComponent(Transform);
+      const rect = { x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE };
+      triggers.tick(rect, { time: performance.now() });
+    }
+  }
+  playerNode.addComponent(new TriggerDriver());
 
   const hud = document.getElementById('hud');
   renderer.attach(scene);
