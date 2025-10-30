@@ -1,39 +1,88 @@
-# !mpact2d – Roadmap
+# !mpact2d Engine – ROADMAP
+(Chronological milestones & development status)
 
-**Architektur:** Hybrid SceneGraph + Components • Ziel: leichte 2D-Engine für Browser (Desktop & Mobile).  
-**Status:** Online-Demo via GitHub Pages & Actions aktiv.
+## ✅ Completed Milestones
 
-## Milestones
-| Version | Status | Ziel | Kurzbeschreibung |
-|--------:|:------:|------|------------------|
-| v0.1 | ✅ | Core Engine | SceneGraph, Components, GameLoop, Input |
-| v0.2 | ✅ | Renderer (PIXI) | Layer-System, Sprites, HUD |
-| v0.3 | ✅ | Parallax & Kamera | Tiefenebenen + Kamera-Follow |
-| v0.4 | ✅ | Physics Lite (AABB) | Kollision, Slide, Hindernisse |
-| v0.5 | 🔜 | Tilemap System | Grid-Welt, Block-Kollision |
-| v0.6 | 🔜 | Trigger Zones | Enter/Exit-Events, Schalter |
-| v0.7 | 🔜 | Entity Factory | Prefabs, Spawns, Clones |
-| v0.8 | 🔜 | Audio Engine | WebAudio, SFX/Musik, Mixer |
-| v0.9 | 🔜 | Save/Load | JSON SaveStates, Flags |
-| v0.95 | 🔜 | Steuerung anpassbar & Touch | Key-Rebinding, On-Screen-Controls (Mobile) |
-| v1.0 | 🔜 | Demo Game | Showcase „Asteroid Outpost“ |
-| v1.1 | 🔜 | UI-System | Fenster, Buttons, Dialoge, Healthbars |
-| v1.2 | 🔜 | Inventory-System | Slots, Items, Drag & Drop |
-| v1.3 | 🔜 | Design-Vorlagen | Menü-/HUD-Templates |
-| v1.4 | 🔜 | Baukastensystem | Visuelle Komponenten-Zusammenstellung |
+### v0.1 – Core Setup
+- ✅ Project initialization, ECS architecture established.
+- ✅ Basic render & update loop via PIXI.js.
+- ✅ GitHub Actions build verified.
 
-## Hinweise zur Priorisierung
-1. **Tilemap** vor **Demo Game**, damit Content-Produktion effizient ist.  
-2. **Input-Rebinding & Touch** noch **vor v1.0**, damit die Demo auf Mobile stabil spielbar ist.  
-3. **UI + Inventory** nach v1.0, dann Templates & Baukastensystem.
+### v0.2 – Renderer & Input
+- ✅ Renderer layers implemented.
+- ✅ Input system with key mapping active.
+- ✅ FPS meter & HUD overlay added.
 
-## Technische Leitplanken
-- TypeScript-API-Design (auch für JS nutzbar), ESM, keine Buildpflicht fürs Demo.  
-- PIXI-Adapter modular, Canvas-Fallback optional.  
-- Keine evals; LocalStorage nur für Saves; Events über Bus / Hooks.
+### v0.3 – Movement & Scene Control
+- ✅ Player movement and camera follow components.
+- ✅ Scene transitions supported.
 
-- **v0.5** ✅ Tilemap & Grid Physics (inkl. Materials)
-- **v0.5a** ✅ Hotfix Kollisionspräzision (Inset/EPS)
-- **v0.5b** ✅ Hotfix Layer-Ausrichtung (Tiles → world 1.0)
-- **v0.6** ✅ Trigger Zones
-- **v0.6a** ✅ HUD/Map Hotfix
+### v0.4 – Physics Preparation
+- ✅ Tile-based grid physics prototype created.
+- ✅ Material types defined (wall, floor, water, sand, lava).
+
+### v0.5 – Grid Collision System
+- ✅ Full collision resolution (X/Y separated).
+- ✅ Speed modifiers & lethal tiles functional.
+
+### v0.5a/b – Hotfixes
+- ✅ Collision precision (Inset + EPS).
+- ✅ Layer alignment between visuals & physics.
+
+### v0.6 – Trigger System
+- ✅ Trigger zones (onEnter, onStay, onExit, once).
+- ✅ HUD integration for event feedback.
+
+### v0.6a – Trigger Hotfix
+- ✅ HUD text fix and optimized map layout.
+
+### v0.7 – Entity Factory
+- ✅ Prefab registry + `spawn(name, options)`.
+- ✅ Entities: crate, gem, bot.
+- ✅ Layer + sprite + property injection.
+
+### v0.7b – Trigger Demo & Lava Patch
+- ✅ Lava and pickup zones added.
+- ✅ Corridor triggers placed reliably.
+
+### v0.7c – Gem Visibility Fix
+- ✅ Enlarged gem, repositioned to (15,9).
+- ✅ Pickup alignment validated.
+
+### v0.7d – Entity Collision Flags
+- ✅ Collider component (`engine/collider.js`).
+- ✅ Solid entity blocking enabled (crate, bot).
+
+### v0.7d Hotfix
+- ✅ Fixed invalid `await import(...)` → static import.
+
+### v0.7d2 – TriggerDriver Hotfix
+- ✅ Trigger ticking restored.
+- ✅ HUD event feedback and pickup text reactivated.
+
+---
+
+## 🔄 In Progress
+### v0.7e – Behavior System
+- Implement modular behavior components:
+  - `pickup`: remove entity + increase HUD counter.
+  - `patrol`: basic movement logic for AI entities.
+- Add shared `BehaviorManager` for ticking logic.
+
+---
+
+## ⏭ Planned
+### v0.8 – JSON Map Loader
+- Parse external JSON maps with tile + spawn data.
+- Introduce editor-compatible layer parsing.
+
+### v0.9 – UI System
+- Create flexible UI layer (buttons, overlays, counters).
+
+### v1.0 – Public Beta
+- Documentation and template demo for developers.
+- Performance optimization and modular export system.
+
+---
+**Legend:**  
+✅ = Completed 🔄 = In Progress ⏭ = Planned
