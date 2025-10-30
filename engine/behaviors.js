@@ -1,4 +1,4 @@
-// !mpact2d — Behavior system (minimal) + PickupBehavior
+// !mpact2d — Behavior system (minimal) + PickupBehavior (HOTFIX: no setEnabled())
 import { Component, Transform } from './component.js';
 import { Sprite } from './sprite.js';
 
@@ -25,9 +25,10 @@ function resolveSize(node, fallback) {
 }
 
 /**
- * PickupBehavior
- * - On overlap with player AABB: run callback, hide this entity (and disable updates).
- * options: { size?: number, playerSize?: number, onPickup?: (owner)=>void }
+ * PickupBehavior (HOTFIX)
+ * - On overlap with player: hide self, call callback.
+ * - We avoid calling this.setEnabled() (not provided by Component base).
+ * - Instead we set an internal flag `picked` and early-return on update.
  */
 export class PickupBehavior extends Behavior {
   constructor(playerNode, options = {}) {
@@ -39,7 +40,7 @@ export class PickupBehavior extends Behavior {
     this.picked = false;
   }
   onUpdate() {
-    if (this.picked) return;
+    if (this.picked) return; // guard
     const tr = this.owner.getComponent(Transform);
     const ptr = this.playerNode.getComponent(Transform);
     if (!tr || !ptr) return;
@@ -55,9 +56,8 @@ export class PickupBehavior extends Behavior {
       const s = this.owner.getComponent(Sprite);
       if (s && s._pixi) s._pixi.visible = false;
       // Optional callback
-      if (this.onPickup) try { this.onPickup(this.owner); } catch(e) { /* no-op */ }
-      // Stop ticking
-      this.setEnabled(false);
+      if (this.onPickup) { try { this.onPickup(this.owner); } catch(e) {} }
+      // No disable call; guard prevents further work
     }
   }
 }
