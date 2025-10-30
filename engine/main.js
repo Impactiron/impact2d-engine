@@ -1,4 +1,4 @@
-const BUILD = "ENTITY-COLLISION-2025-10-29";
+const BUILD = "ENTITY-COLLISION-HOTFIX-2025-10-29";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -12,7 +12,6 @@ import { TriggerSystem } from './triggers.js';
 import { EntityFactory } from './factory.js';
 import { getColliders } from './collider.js';
 
-// Scene & Player
 const scene = new Scene('Root');
 const PLAYER_SIZE = 24;
 
@@ -24,7 +23,6 @@ const playerSprite = playerNode.addComponent(new Sprite('rect:'+PLAYER_SIZE));
 playerSprite.layer = 'default';
 scene.add(playerNode);
 
-// Movement
 class MoveScript extends Component {
   constructor(input, getSpeedMul){ super(); this.input = input; this.baseSpeed = 0.25; this.getSpeedMul = getSpeedMul; this.dx=0; this.dy=0; }
   onUpdate(dt){
@@ -40,7 +38,6 @@ class MoveScript extends Component {
   }
 }
 
-// Camera follow
 class CameraFollow extends Component {
   constructor(renderer){ super(); this.r = renderer; }
   onUpdate(){ 
@@ -49,7 +46,6 @@ class CameraFollow extends Component {
   }
 }
 
-// Tilemap (same as 0.7c, with corridor and lava patch)
 const W = 40, H = 30, TS = 32;
 const tiles = [];
 for(let y=0;y<H;y++){
@@ -68,11 +64,10 @@ for(let y=0;y<H;y++){
 for(let yy=1; yy<=10; yy++){ for(let xx=1; xx<=12; xx++){ tiles[yy][xx] = 0; } }
 for(let yy=8; yy<=10; yy++){ for(let xx=12; xx<=24; xx++){ tiles[yy][xx] = 0; } }
 for(let yy=8; yy<=9; yy++){ for(let xx=22; xx<=24; xx++){ tiles[yy][xx] = 2; } }
-tiles[9][15] = 0; // gem tile guarantee
+tiles[9][15] = 0;
 
 const palette = { 0:0x202733, 1:0x586174, 2:0xb24b36, 3:0x2f6aa5, 4:0xa68a5b };
 
-// Start
 const game = new Game();
 const renderer = new PixiRenderer();
 
@@ -101,7 +96,6 @@ renderer.init().then(()=>{
   }));
 
   function resolveEntityCollisions(rect) {
-    // Simple AABB resolution vs solid colliders (excluding player itself)
     let rx = rect.x, ry = rect.y;
     const rw = rect.w, rh = rect.h;
     for (const c of getColliders()) {
@@ -111,7 +105,6 @@ renderer.init().then(()=>{
       const overlapX = Math.min(rx+rw, b.x+b.w) - Math.max(rx, b.x);
       const overlapY = Math.min(ry+rh, b.y+b.h) - Math.max(ry, b.y);
       if (overlapX > 0 && overlapY > 0) {
-        // push out along the smaller axis
         if (overlapX < overlapY) {
           if (rx < b.x) rx -= overlapX; else rx += overlapX;
         } else {
@@ -126,9 +119,7 @@ renderer.init().then(()=>{
     onUpdate(){
       const tr = playerNode.getComponent(Transform);
       const rectProvider = ()=>({ x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE });
-      // First: tiles
       let res = moveWithTileCollisions(playerNode, mover.dx||0, mover.dy||0, tiles, TS, rectProvider);
-      // Then: entities
       res = resolveEntityCollisions({ x: res.x, y: res.y, w: PLAYER_SIZE, h: PLAYER_SIZE });
       tr.position.x = res.x; tr.position.y = res.y;
       const spr = playerNode.getComponent(Sprite);
@@ -137,11 +128,9 @@ renderer.init().then(()=>{
   }
   playerNode.addComponent(new TileAndEntityCollisionResolver());
 
-  // Factory & Entities
-  const { EntityFactory } = await import('./factory.js'); // ensure latest module
   const factory = new EntityFactory();
   factory.register('crate', { sprite:'rect:18', layer:'default', props:{ loot:1 }, collider:{ size:18, solid:true } });
-  factory.register('gem',   { sprite:'rect:24', layer:'default', props:{ value:10 }, collider:null }); // non-solid
+  factory.register('gem',   { sprite:'rect:24', layer:'default', props:{ value:10 }, collider:null });
   factory.register('bot',   { sprite:'rect:16', layer:'default', props:{ hp:5 }, collider:{ size:16, solid:true } });
 
   const gem = factory.spawn('gem',   { x: 15*TS, y: 9*TS });
@@ -149,7 +138,6 @@ renderer.init().then(()=>{
   const bot = factory.spawn('bot',   { x: 20*TS, y: 9*TS });
   scene.add(gem); scene.add(crate); scene.add(bot);
 
-  // Triggers + HUD
   const triggers = new TriggerSystem();
   let lastEvent = "";
   const zone = (tx, ty, tw, th, opts={}) => ({ x: tx*TS, y: ty*TS, w: tw*TS, h: th*TS, ...opts });
@@ -158,13 +146,11 @@ renderer.init().then(()=>{
   triggers.add(zone(15,9,1,1,{ tag:'pickup', once:true, onEnter:() => { lastEvent='Item aufgenommen (+1)'; if(gem && gem.getComponent) { const s = gem.getComponent(Sprite); if(s && s._pixi) s._pixi.visible = false; } } }));
   triggers.add(zone(22,8,3,2,{ tag:'lava', onEnter:() => { lastEvent='Achtung: Lava!'; }, onExit:() => { lastEvent='Raus aus der Lava.'; } }));
 
-  // Attach scene and start
   const hud = document.getElementById('hud');
   renderer.attach(scene);
   playerNode.addComponent(new CameraFollow(renderer));
   game.start(scene);
 
-  // HUD
   let last = performance.now(), frames=0, fps=0;
   function meter(){
     const now = performance.now(); frames++;
