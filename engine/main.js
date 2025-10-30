@@ -57,7 +57,7 @@ renderer.init().then(async ()=>{
   const mapName = queryMapName();
   let map;
   try {
-    map = await loadMap(mapName + '.json');
+    map = await loadMap(mapName);   // lädt korrekt maps/<name>.json
   } catch(e){
     console.error('MapLoader failed, fallback map used', e);
     map = { name:'Fallback', tileSize:32, width:20, height:15,
