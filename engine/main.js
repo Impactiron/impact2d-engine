@@ -1,4 +1,4 @@
-const BUILD = "BEHAVIOR-PICKUP-2025-10-30";
+const BUILD = "BEHAVIOR-PATROL-2025-10-30";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -11,7 +11,7 @@ import { TileTypes, moveWithTileCollisions } from './tilemap-physics.js';
 import { TriggerSystem } from './triggers.js';
 import { EntityFactory } from './factory.js';
 import { getColliders } from './collider.js';
-import { PickupBehavior } from './behaviors.js';
+import { PickupBehavior, PatrolBehavior } from './behaviors.js';
 
 // Scene & Player
 const scene = new Scene('Root');
@@ -144,10 +144,13 @@ renderer.init().then(()=>{
   const crate = factory.spawn('crate', { x: 18*TS, y: 9*TS });
   const bot = factory.spawn('bot',   { x: 20*TS, y: 9*TS });
   scene.add(gem); scene.add(crate); scene.add(bot);
+  // Attach patrol to bot (safe corridor x: 20*TS ↔ 26*TS at y=9*TS)
+  bot.addComponent(new PatrolBehavior({ axis: 'x', from: 20*TS, to: 26*TS, speed: 0.10, pauseMs: 300 }));
+
 
   // === Behavior: Pickup (for gem)
   let gemCount = 0;
-  gem.addComponent(new PickupBehavior(playerNode, {
+  gem.addComponent(new PickupBehavior, PatrolBehavior(playerNode, {
     size: 24,
     playerSize: PLAYER_SIZE,
     onPickup: () => { 

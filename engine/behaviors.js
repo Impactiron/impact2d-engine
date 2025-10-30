@@ -61,3 +61,60 @@ export class PickupBehavior extends Behavior {
     }
   }
 }
+
+
+/**
+ * PatrolBehavior
+ * Simple ping-pong patrol between two points along one axis.
+ * options: { axis: 'x'|'y', from: number, to: number, speed?: number, pauseMs?: number }
+ */
+export class PatrolBehavior extends Behavior {
+  constructor(options = {}){
+    super();
+    this.axis = options.axis || 'x';
+    this.from = options.from ?? 0;
+    this.to = options.to ?? 0;
+    this.speed = options.speed ?? 0.12; // world units per ms (consistent with player base speed 0.25)
+    this.pauseMs = options.pauseMs ?? 300;
+    this._dir = 1; // 1 forward, -1 backward
+    this._pausedUntil = 0;
+  }
+  onStart(){
+    const tr = this.owner.getComponent(Transform);
+    if(!tr) return;
+    if(this.axis==='x'){ tr.position.x = this.from; }
+    else { tr.position.y = this.from; }
+  }
+  onUpdate(dt){
+    const tr = this.owner.getComponent(Transform);
+    if(!tr) return;
+    const now = performance.now();
+    if(now < this._pausedUntil) return;
+
+    const axis = this.axis;
+    const pos = axis==='x' ? tr.position.x : tr.position.y;
+    const targetMin = Math.min(this.from, this.to);
+    const targetMax = Math.max(this.from, this.to);
+    let next = pos + this._dir * this.speed * dt;
+
+    if(next <= targetMin){
+      next = targetMin;
+      this._dir = 1;
+      this._pausedUntil = now + this.pauseMs;
+    } else if(next >= targetMax){
+      next = targetMax;
+      this._dir = -1;
+      this._pausedUntil = now + this.pauseMs;
+    }
+
+    if(axis==='x'){ tr.position.x = next; }
+    else { tr.position.y = next; }
+
+    // Update sprite position if available
+    const spr = this.owner.getComponent(Sprite);
+    if(spr && spr._pixi){
+      spr._pixi.x = tr.position.x;
+      spr._pixi.y = tr.position.y;
+    }
+  }
+}
