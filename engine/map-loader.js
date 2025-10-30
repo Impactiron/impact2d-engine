@@ -1,6 +1,7 @@
 // !mpact2d — Map Loader (v0.8)
 export async function loadMap(nameOrUrl) {
-  const url = (nameOrUrl && nameOrUrl.endsWith('.json')) ? nameOrUrl : `maps/${nameOrUrl||'demo'}.json`;
+  const isAbs = nameOrUrl?.includes('/') || nameOrUrl?.endsWith('.json');
+  const url = isAbs ? nameOrUrl : `maps/${nameOrUrl||'demo'}.json`;
   const res = await fetch(url, { cache: 'no-store' });
   if(!res.ok) throw new Error(`MapLoader: failed to load ${url} (${res.status})`);
   const map = await res.json();
