@@ -1,10 +1,13 @@
-// !mpact2d â€” Map Loader (v0.8)
+// !mpact2d — Map Loader (v0.8a hotfix)
 export async function loadMap(nameOrUrl) {
-  const isAbs = nameOrUrl?.includes('/') || nameOrUrl?.endsWith('.json');
-  const url = isAbs ? nameOrUrl : `maps/${nameOrUrl||'demo'}.json`;
+  // Robust path handling: support bare name ("demo"), relative path ("maps/demo.json") or absolute ("/.../demo.json")
+  const isExplicitPath = /\\//.test(nameOrUrl||'') || (nameOrUrl||'').endsWith('.json');
+  const url = isExplicitPath ? (nameOrUrl || 'maps/demo.json') : `maps/${nameOrUrl||'demo'}.json`;
+
   const res = await fetch(url, { cache: 'no-store' });
-  if(!res.ok) throw new Error(`MapLoader: failed to load ${url} (${res.status})`);
+  if (!res.ok) throw new Error(`MapLoader: failed to load ${url} (${res.status})`);
   const map = await res.json();
+
   map.tileSize = map.tileSize || 32;
   map.width = map.width || (map.tiles?.[0]?.length ?? 0);
   map.height = map.height || (map.tiles?.length ?? 0);
@@ -15,7 +18,7 @@ export async function loadMap(nameOrUrl) {
   return map;
 }
 
-export function queryMapName(){
+export function queryMapName() {
   const q = new URLSearchParams(location.search);
   return q.get('map') || 'demo';
 }

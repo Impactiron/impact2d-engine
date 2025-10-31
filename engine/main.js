@@ -1,4 +1,4 @@
-const BUILD = "MAP-LOADER-2025-10-30";
+const BUILD = "MAP-LOADER-2025-10-30a";
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -53,11 +53,11 @@ renderer.init().then(async ()=>{
   renderer.defineLayer('default', 1.0);
   const input = new Input();
 
-  // Map laden (+ Fallback)
   const mapName = queryMapName();
   let map;
   try {
-    map = await loadMap(mapName);   // l√§dt korrekt maps/<name>.json
+    // Hotfix: call with bare name; loader adds .json under maps/
+    map = await loadMap(mapName);
   } catch(e){
     console.error('MapLoader failed, fallback map used', e);
     map = { name:'Fallback', tileSize:32, width:20, height:15,
@@ -153,8 +153,8 @@ renderer.init().then(async ()=>{
   let last = performance.now(), frames=0, fps=0; let lastEvent = '';
   function meter(){
     const now = performance.now(); frames++; if(now-last>=1000){ fps=frames; frames=0; last=now; }
-    const base = '!mpact2d ‚Ä¢ ' + BUILD + ' ‚Ä¢ Map: ' + (map?.name || 'n/a') + ' ‚Ä¢ FPS: ' + fps + ' ‚Ä¢ Gems: ' + gemCountLocal;
-    hud.textContent = lastEvent ? base + ' ‚Ä¢ ' + lastEvent : base;
+    const base = '!mpact2d ï ' + BUILD + ' ï Map: ' + (map?.name || 'n/a') + ' ï FPS: ' + fps + ' ï Gems: ' + gemCountLocal;
+    hud.textContent = lastEvent ? base + ' ï ' + lastEvent : base;
     requestAnimationFrame(meter);
   }
   meter();
