@@ -1,0 +1,1 @@
+Extract → push to GitHub → enable Pages. Verify via backup/checksum.md5.
