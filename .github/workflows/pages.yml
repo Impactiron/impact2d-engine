@@ -1,4 +1,4 @@
-name: Deploy !mpact2d Engine to GitHub Pages
+name: Deploy !mpact2d (publish everything)
 
 on:
   push:
@@ -21,29 +21,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Optional: wenn du z. B. eine README oder Version erzeugen willst,
-      # kann hier ein Build-Schritt hinzugefügt werden.
-
-      - name: Upload build artifact to Pages
+      - name: Upload entire repo to Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          # 🔹 Alle relevanten Engine-Dateien & Maps mitnehmen
-          path: |
-            index.html
-            engine/
-            maps/
-            assets/
-            favicon.ico
-            CHANGELOG.md
-            VERSIONS.md
-            ROADMAP.md
+          # ⚠️ veröffentlicht das ganze Repo (außer .git)
+          path: .
 
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
