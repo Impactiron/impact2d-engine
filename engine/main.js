@@ -74,10 +74,10 @@ function resolveEntityCollisions(subjectNode, rect) {
 
 renderer.init().then(async ()=>{
   const hud = document.getElementById('hud');
- // Layer-Reihenfolge: world (Tiles) < default (HUD u.a.) < actors (Entities)
 renderer.defineLayer('world', 1.0);
-renderer.defineLayer('default', 1.0);
 renderer.defineLayer('actors', 1.0);
+renderer.defineLayer('default', 1.0);
+
 
   const input = new Input();
   const mover = playerNode.addComponent(new MoveScript(input, ()=>{ 
