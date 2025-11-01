@@ -1,5 +1,4 @@
-const BUILD = "MAPLOADER-HOTFIX2-2025-11-01";
-
+// +++ PATCH: tile-based HUD hints (lava / slow) • 2025-11-01
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
 import { Game } from './game.js';
@@ -13,6 +12,8 @@ import { EntityFactory } from './factory.js';
 import { getColliders } from './collider.js';
 import { PickupBehavior, PatrolBehavior } from './behaviors.js';
 import { MapLoader } from './maploader.js';
+
+const BUILD = "HUD-HINTS-PATCH-2025-11-01";
 
 // Scene & Player
 const scene = new Scene('Root');
@@ -57,6 +58,7 @@ const renderer = new PixiRenderer();
 let tiles = null, TS = 32;
 let lastEvent = "";
 let gemCount = 0;
+let mapName = "fallback";
 
 function makeFallbackTiles() {
   const W = 40, H = 30; TS = 32;
@@ -65,11 +67,11 @@ function makeFallbackTiles() {
     const row=[];
     for(let x=0;x<W;x++){ 
       let v=0;
-      if(x===0||y===0||x===W-1||y===H-1) v=1;
-      else if((x+y)%19===0) v=1;
-      else if((x*y)%113===0) v=2;
-      else if((x+2*y)%37===0) v=3;
-      else if((2*x+y)%41===0) v=4;
+      if(x===0||y===0||x===W-1||y===H-1) v=1;           // wall
+      else if((x+y)%19===0) v=1;                        // rails
+      else if((x*y)%113===0) v=2;                       // lava
+      else if((x+2*y)%37===0) v=3;                      // water/sand
+      else if((2*x+y)%41===0) v=4;                      // water/sand
       row.push(v);
     } 
     t.push(row); 
@@ -85,7 +87,7 @@ function makeFallbackTiles() {
 renderer.init().then(async ()=>{
   const hud = document.getElementById('hud');
   const loader = new MapLoader(renderer);
-  let mapMeta = null; let mapName = 'fallback';
+  let mapMeta = null;
   try {
     const res = await loader.loadAuto();
     const data = res.data;
@@ -112,10 +114,8 @@ renderer.init().then(async ()=>{
     lastEvent = 'Map fallback active';
   }
 
-  // Ensure default layer exists for sprites
   renderer.defineLayer('default', 1.0);
 
-  // Input + movement
   const input = new Input();
   const mover = playerNode.addComponent(new MoveScript(input, ()=>{
     const tr = playerNode.getComponent(Transform);
@@ -155,36 +155,35 @@ renderer.init().then(async ()=>{
   }
   playerNode.addComponent(new TileAndEntityCollisionResolver());
 
-  // Factory defaults (used if map didn't spawn any)
+  // Behaviors quick defaults
   const factory = new EntityFactory();
-  factory.register('crate', { sprite:'rect:18', layer:'default', props:{ loot:1 }, collider:{ size:18, solid:true } });
-  factory.register('gem',   { sprite:'rect:24', layer:'default', props:{ value:10 }, collider:null });
-  factory.register('bot',   { sprite:'rect:16', layer:'default', props:{ hp:5 }, collider:{ size:16, solid:true } });
-
   if (!scene.children.some(n => (n.name||'').toLowerCase().includes('gem'))) {
-    const gem = factory.spawn('gem',   { x: 15*TS, y: 9*TS });
-    const crate = factory.spawn('crate', { x: 18*TS, y: 9*TS });
-    const bot = factory.spawn('bot',   { x: 20*TS, y: 9*TS });
-    scene.add(gem); scene.add(crate); scene.add(bot);
+    scene.add(factory.spawn('gem',   { x: 15*TS, y: 9*TS }));
+    scene.add(factory.spawn('crate', { x: 18*TS, y: 9*TS }));
+    scene.add(factory.spawn('bot',   { x: 20*TS, y: 9*TS }));
   }
 
-  // Attach behaviors
-  for (const n of scene.children) {
-    const nm = (n.name||'').toLowerCase();
-    if (nm.includes('gem')) {
-      n.addComponent(new PickupBehavior(playerNode, { size: 24, playerSize: PLAYER_SIZE, onPickup: () => { gemCount += 1; lastEvent = 'Item collected (+1)'; } }));
-    }
-    if (nm.includes('bot')) {
-      n.addComponent(new PatrolBehavior({ axis: 'x', from: 18*TS, to: 24*TS, speed: 0.10, pauseMs: 300 }));
+  // === New: tile-based HUD hints (no manual trigger zones needed) ===
+  class TileHintDriver extends Component {
+    constructor(){ super(); this.lastId = -1; this.cooldown=0; }
+    onUpdate(dt){ 
+      const tr = playerNode.getComponent(Transform);
+      const cx = Math.floor((tr.position.x + PLAYER_SIZE/2)/TS);
+      const cy = Math.floor((tr.position.y + PLAYER_SIZE/2)/TS);
+      const id = (tiles[cy] && tiles[cy][cx]) ?? 0;
+      if (id !== this.lastId || this.cooldown<=0) {
+        if (id === 2) lastEvent = 'Warning: lava!';
+        else if (id === 3 || id === 4) lastEvent = 'Info: water/sand slow movement';
+        else lastEvent = 'Map active';
+        this.lastId = id;
+        this.cooldown = 300; // ms
+      } else {
+        this.cooldown -= (dt||16);
+      }
     }
   }
-
-  // Triggers
-  const triggers = new TriggerSystem();
-  const zone = (tx, ty, tw, th, opts={}) => ({ x: tx*TS, y: ty*TS, w: tw*TS, h: th*TS, ...opts });
-  triggers.add(zone(3,2,3,2,{ tag:'hint', once:true, onEnter:() => { lastEvent='Map active • Use WASD/Arrows'; } }));
-  class TriggerDriver extends Component { onUpdate(){ const tr = playerNode.getComponent(Transform); const rect = { x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE }; triggers.tick(rect, { time: performance.now() }); } }
-  playerNode.addComponent(new TriggerDriver());
+  playerNode.addComponent(new TileHintDriver());
+  // === End hints ===
 
   // Start
   renderer.attach(scene);
@@ -196,7 +195,7 @@ renderer.init().then(async ()=>{
   function meter(){
     const now = performance.now(); frames++;
     if(now - last >= 1000){ fps = frames; frames=0; last = now; }
-    const base = '!mpact2d • ' + BUILD + ' • FPS: ' + fps + ' • Gems: ' + gemCount;
+    const base = '!mpact2d • ' + BUILD + ' • FPS: ' + fps + ' • Gems: ' + gemCount + ' • Map: ' + mapName;
     const hud = document.getElementById('hud');
     hud.textContent = lastEvent ? base + ' • ' + lastEvent : base;
     requestAnimationFrame(meter);
