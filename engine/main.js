@@ -1,7 +1,14 @@
 const BUILD = "MAPLOADER-HOTFIX2-2025-11-01";
 
-import { Scene, Node } from './node.js';
 import { EntityFactory, registerDefaultPrefabs } from './factory.js';
+
+// --- factory bootstrap (single instance via window.factory) ---
+if (!window.factory) {
+  const f = new EntityFactory();
+  registerDefaultPrefabs(f);
+  window.factory = f;
+}
+import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
 import { Game } from './game.js';
 import { Input } from './input.js';
@@ -10,7 +17,6 @@ import { Sprite } from './sprite.js';
 import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
 import { TileTypes, moveWithTileCollisions } from './tilemap-physics.js';
 import { TriggerSystem } from './triggers.js';
-import { EntityFactory } from './factory.js';
 import { getColliders } from './collider.js';
 import { PickupBehavior, PatrolBehavior } from './behaviors.js';
 import { MapLoader } from './maploader.js';
@@ -23,13 +29,13 @@ if (!(typeof window !== 'undefined' && window.factory)) {
     if (typeof window !== 'undefined') window.factory = __f;
     // fall back to global var as well
     // eslint-disable-next-line no-var
-    var factory = __f;
+
   } catch (err) {
     console.error('[factory-boot]', err);
   }
 } else {
   // eslint-disable-next-line no-var
-  var factory = window.factory;
+
 }
 
 
@@ -175,15 +181,15 @@ renderer.init().then(async ()=>{
   playerNode.addComponent(new TileAndEntityCollisionResolver());
 
   // Factory defaults (used if map didn't spawn any)
-  const factory = new EntityFactory();
+
   factory.register('crate', { sprite:'rect:18', layer:'default', props:{ loot:1 }, collider:{ size:18, solid:true } });
   factory.register('gem',   { sprite:'rect:24', layer:'default', props:{ value:10 }, collider:null });
   factory.register('bot',   { sprite:'rect:16', layer:'default', props:{ hp:5 }, collider:{ size:16, solid:true } });
 
   if (!scene.children.some(n => (n.name||'').toLowerCase().includes('gem'))) {
-    const gem = factory.spawn('gem',   { x: 15*TS, y: 9*TS });
-    const crate = factory.spawn('crate', { x: 18*TS, y: 9*TS });
-    const bot = factory.spawn('bot',   { x: 20*TS, y: 9*TS });
+    const gem = window.factory.spawn('gem',   { x: 15*TS, y: 9*TS });
+    const crate = window.factory.spawn('crate', { x: 18*TS, y: 9*TS });
+    const bot = window.factory.spawn('bot',   { x: 20*TS, y: 9*TS });
     scene.add(gem); scene.add(crate); scene.add(bot);
   }
 
@@ -241,7 +247,7 @@ try {
     if (Array.isArray(_data.entities)) {
       for (const e of _data.entities) {
         try {
-          const node = factory.spawn(e.type, { x: ((e.x||0)*TS), y: ((e.y||0)*TS), layer: 'actors' });
+          const node = window.factory.spawn(e.type, { x: ((e.x||0)*TS), y: ((e.y||0)*TS), layer: 'actors' });
           if (node && node.get) { try { const s = node.get(Sprite); if (s && 'tint' in s) s.tint = (e.type==='gem')?0x5edfff:(e.type==='bot')?0xff5353:(e.type==='crate')?0xffcc33:0xffffff; } catch {} }
           scene.add(node);
           console.log('[spawn.v2]', e.type, 'at', node && node.transform && node.transform.position, 'layer=actors');
@@ -256,7 +262,7 @@ try {
 // Keep the 3 hard-coded markers as a visibility check
 try {
   for (let i=0;i<3;i++) {
-    const n = factory.spawn('gem', { x: 300 + i*40, y: 340, layer: 'actors' });
+    const n = window.factory.spawn('gem', { x: 300 + i*40, y: 340, layer: 'actors' });
     if (n && n.get) { try { const s = n.get(Sprite); if (s && 'tint' in s) s.tint = 0x5edfff; } catch {} }
     scene.add(n);
   }
