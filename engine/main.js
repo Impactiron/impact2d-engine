@@ -1,4 +1,4 @@
-// +++ PATCH: tile-based HUD hints (lava / slow) • 2025-11-01
+// +++ PATCH: register default prefabs before spawn • 2025-11-01
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
 import { Game } from './game.js';
@@ -13,7 +13,7 @@ import { getColliders } from './collider.js';
 import { PickupBehavior, PatrolBehavior } from './behaviors.js';
 import { MapLoader } from './maploader.js';
 
-const BUILD = "HUD-HINTS-PATCH-2025-11-01";
+const BUILD = "REGISTER-PREFABS-PATCH-2025-11-01";
 
 // Scene & Player
 const scene = new Scene('Root');
@@ -155,15 +155,31 @@ renderer.init().then(async ()=>{
   }
   playerNode.addComponent(new TileAndEntityCollisionResolver());
 
-  // Behaviors quick defaults
+  // === Register prefabs BEFORE any spawn calls ===
   const factory = new EntityFactory();
+  factory.register('crate', { sprite:'rect:18', layer:'default', props:{ loot:1 }, collider:{ size:18, solid:true } });
+  factory.register('gem',   { sprite:'rect:24', layer:'default', props:{ value:10 }, collider:null });
+  factory.register('bot',   { sprite:'rect:16', layer:'default', props:{ hp:5 }, collider:{ size:16, solid:true } });
+
+  // Spawn defaults only if map didn't define entities
   if (!scene.children.some(n => (n.name||'').toLowerCase().includes('gem'))) {
     scene.add(factory.spawn('gem',   { x: 15*TS, y: 9*TS }));
     scene.add(factory.spawn('crate', { x: 18*TS, y: 9*TS }));
     scene.add(factory.spawn('bot',   { x: 20*TS, y: 9*TS }));
   }
 
-  // === New: tile-based HUD hints (no manual trigger zones needed) ===
+  // Attach behaviors
+  for (const n of scene.children) {
+    const nm = (n.name||'').toLowerCase();
+    if (nm.includes('gem')) {
+      n.addComponent(new PickupBehavior(playerNode, { size: 24, playerSize: PLAYER_SIZE, onPickup: () => { gemCount += 1; lastEvent = 'Item collected (+1)'; } }));
+    }
+    if (nm.includes('bot')) {
+      n.addComponent(new PatrolBehavior({ axis: 'x', from: 18*TS, to: 24*TS, speed: 0.10, pauseMs: 300 }));
+    }
+  }
+
+  // Tile-based HUD hints
   class TileHintDriver extends Component {
     constructor(){ super(); this.lastId = -1; this.cooldown=0; }
     onUpdate(dt){ 
@@ -176,14 +192,13 @@ renderer.init().then(async ()=>{
         else if (id === 3 || id === 4) lastEvent = 'Info: water/sand slow movement';
         else lastEvent = 'Map active';
         this.lastId = id;
-        this.cooldown = 300; // ms
+        this.cooldown = 300;
       } else {
         this.cooldown -= (dt||16);
       }
     }
   }
   playerNode.addComponent(new TileHintDriver());
-  // === End hints ===
 
   // Start
   renderer.attach(scene);
