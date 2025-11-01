@@ -1,6 +1,7 @@
 const BUILD = "MAPLOADER-HOTFIX2-2025-11-01";
 
 import { Scene, Node } from './node.js';
+import { EntityFactory, registerDefaultPrefabs } from './factory.js';
 import { Component, Transform } from './component.js';
 import { Game } from './game.js';
 import { Input } from './input.js';
@@ -13,6 +14,24 @@ import { EntityFactory } from './factory.js';
 import { getColliders } from './collider.js';
 import { PickupBehavior, PatrolBehavior } from './behaviors.js';
 import { MapLoader } from './maploader.js';
+
+// Ensure a global factory instance for debug/test spawns
+if (!(typeof window !== 'undefined' && window.factory)) {
+  try {
+    const __f = new EntityFactory();
+    registerDefaultPrefabs(__f);
+    if (typeof window !== 'undefined') window.factory = __f;
+    // fall back to global var as well
+    // eslint-disable-next-line no-var
+    var factory = __f;
+  } catch (err) {
+    console.error('[factory-boot]', err);
+  }
+} else {
+  // eslint-disable-next-line no-var
+  var factory = window.factory;
+}
+
 
 // Scene & Player
 const scene = new Scene('Root');
