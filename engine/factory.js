@@ -18,7 +18,7 @@ export class EntityFactory {
     t.position.x = (opts.x ?? 0);
     t.position.y = (opts.y ?? 0);
 
-    const layer = (opts.layer || p.layer || 'actors'); // <- actors default
+    const layer = (opts.layer || p.layer || 'actors'); // default actors
     const spriteId = opts.sprite || p.sprite || 'rect:16';
     const s = n.addComponent(new Sprite(spriteId));
     s.layer = layer;
