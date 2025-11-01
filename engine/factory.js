@@ -1,22 +1,16 @@
 // engine/factory.js
-// Register default prefabs with colorized gem entity
-
-export class EntityFactory {
-  constructor() {
-    this.prefabs = {};
+(function (global) {
+  const _prefabs = new Map();
+  function prefab(name, fn) { _prefabs.set(name, fn); }
+  function spawn(name, opts = {}) {
+    const fn = _prefabs.get(name);
+    if (!fn) throw new Error(`Prefab not found: ${name}`);
+    return fn(opts);
   }
-  register(name, fn) {
-    this.prefabs[name] = fn;
-  }
-  spawn(name, opts = {}) {
-    const prefab = this.prefabs[name];
-    if (!prefab) throw new Error(`Prefab not found: ${name}`);
-    return prefab(opts);
-  }
-}
-
-export function registerDefaultPrefabs(factory) {
-  factory.register('gem', ({ x = 0, y = 0, size = 16, color = '#2B6CB0' }) => ({
-    x, y, w: size, h: size, fill: color, tag: 'gem'
-  }));
-}
+  global.factory = { prefab, spawn };
+  prefab('gem', ({ x = 0, y = 0, size = 16, color = '#2B6CB0' } = {}) => {
+    const ent = { x, y, w: size, h: size, fill: color, tag: 'gem',
+      _removed: false, remove(){ this._removed = true; } };
+    return ent;
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
