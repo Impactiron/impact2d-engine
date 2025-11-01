@@ -1,22 +1,18 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>!mpact2d — GitHub Pages Demo</title>
-  <link rel="icon" href="/favicon.ico" />
-  <style>
-    :root { color-scheme: dark; }
-    html, body { margin: 0; height: 100%; background:#0e1520; }
-    #hud { position: fixed; left: 10px; top: 10px; padding: 4px 8px; background: #111a; color:#e6edf3; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; border-radius: 4px; }
-    canvas { display:block; width:100vw; height:100vh; }
-  </style>
-</head>
-<body>
-  <div id="hud">loading…</div>
-  <canvas id="game"></canvas>
-  <script type="module">
-    import './engine/main.js';
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>!mpact2d — GitHub Pages Demo</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" href="./favicon.ico" />
+    <style>
+      html, body { height: 100%; margin: 0; background:#0f131a; color:#e6e6e6; font:14px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;}
+      #loading { position:fixed; top:12px; left:12px; background:#0b0f15; border-radius:4px; padding:6px 10px; color:#eee; }
+      canvas { display:block; margin:0 auto; }
+    </style>
+  </head>
+  <body>
+    <div id="loading">loading…</div>
+    <script type="module" src="./engine/main.js"></script>
+  </body>
 </html>

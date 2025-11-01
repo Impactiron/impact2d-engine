@@ -1,15 +1,36 @@
 // engine/factory.js
-export const factory = (() => {
-  const registry = new Map();
-  function register(name, creator) { registry.set(name, creator); }
-  function spawn(name, opts = {}) {
-    const make = registry.get(name);
-    if (typeof make === 'function') return make(opts);
-    return { type: name, x: opts.x|0, y: opts.y|0, props: opts.props||{} };
-  }
-  function clear() {}
-  function list() { return Array.from(registry.keys()); }
-  register('gem', (o)=>({ type:'gem', x:o.x|0, y:o.y|0, props:o.props||{} }));
-  register('bot', (o)=>({ type:'bot', x:o.x|0, y:o.y|0, props:o.props||{} }));
-  return { register, spawn, clear, list };
-})();
+const _prefabs = new Map();
+
+export const factory = {
+  register(name, ctor) {
+    if (!name || typeof ctor !== 'function') {
+      console.warn('[factory.register] invalid registration for', name);
+      return;
+    }
+    _prefabs.set(name, ctor);
+  },
+  spawn(name, game, props = {}) {
+    const Ctor = _prefabs.get(name);
+    if (!Ctor) {
+      console.warn(`[factory.spawn] unknown prefab: ${name}`);
+      return null;
+    }
+    const entity = new Ctor(props);
+    try {
+      if (entity && typeof entity.addTo === 'function' && game) entity.addTo(game);
+      else if (game && typeof game.addChild === 'function') game.addChild(entity);
+    } catch (e) {
+      console.warn('[factory.spawn] attach skipped:', e);
+    }
+    return entity;
+  },
+  clear() { _prefabs.clear(); },
+  list() { return Array.from(_prefabs.keys()); }
+};
+
+export function registerDefaultPrefabs() {
+  class Gem { constructor(p={}){ this.x=p.x|0; this.y=p.y|0; this.type='gem'; this.size=p.size||16; } }
+  class Bot { constructor(p={}){ this.x=p.x|0; this.y=p.y|0; this.type='bot'; this.size=p.size||16; this.speed=p.speed||1; } }
+  factory.register('gem', Gem);
+  factory.register('bot', Bot);
+}
