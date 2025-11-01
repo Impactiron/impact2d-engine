@@ -1,5 +1,5 @@
 // !mpact2d — v0.8 MapLoader (hotfix: engine path + maps path)
-import { EntityFactory } from './factory.js';
+import factory from './factory.js';
 import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
 
 export class MapLoader {
