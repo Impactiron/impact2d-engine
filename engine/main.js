@@ -1,6 +1,6 @@
 const BUILD = "MAPLOADER-HOTFIX2-2025-11-01";
 
-import { EntityFactory, registerDefaultPrefabs } from './factory.js';
+import { factory, registerDefaultPrefabs } from './factory.js';
 
 // --- factory bootstrap (single instance via window.factory) ---
 if (!window.factory) {

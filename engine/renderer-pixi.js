@@ -112,3 +112,11 @@ export class PixiRenderer {
     for(const entry of this.layers.values()) this._applyCameraTo(entry);
   }
 }
+
+
+// Added: tint updater
+export function __applySpriteTint(pixiSprite, sprite){
+  if (!pixiSprite || !sprite) return;
+  const t = (sprite.tint === undefined || sprite.tint === null) ? 0xFFFFFF : sprite.tint;
+  if (pixiSprite.tint !== t) pixiSprite.tint = t;
+}
