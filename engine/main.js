@@ -189,46 +189,7 @@ renderer.init().then(async ()=>{
   // Start
   renderer.attach(scene);
   playerNode.addComponent(new CameraFollow(renderer));
-  
-// === DEBUG: Entities aus JSON prüfen + sichtbar spawnen ===
-try {
-  const TS = (data && data.tileSize) ? data.tileSize : 32;
-  console.log('[map] entities:', data && data.entities);
-  if (hud && typeof hud.setDebug === 'function') { hud.setDebug(`ents:${(data && data.entities && data.entities.length) || 0}`); }
-  if (data && Array.isArray(data.entities)) {
-    for (const e of data.entities) {
-      try {
-        const node = factory.spawn(e.type, { x: ((e.x||0)*TS), y: ((e.y||0)*TS), layer: 'actors' });
-        // Optional Färbung, falls Sprite.tint existiert
-        if (node && node.get) {
-          try {
-            const s = node.get(Sprite);
-            if (s && 'tint' in s) {
-              s.tint = (e.type==='gem') ? 0x5edfff : (e.type==='bot') ? 0xff5353 : (e.type==='crate') ? 0xffcc33 : 0xffffff;
-            }
-          } catch {}
-        }
-        scene.add(node);
-        console.log('[spawn]', e.type, 'at', node && node.transform && node.transform.position, 'layer=actors');
-      } catch (err) {
-        console.error('[spawn-error]', e, err);
-      }
-    }
-  } else {
-    console.warn('[map] no entities in JSON');
-  }
-} catch (err) { console.error('[entities-debug]', err); }
-
-// === DEBUG: drei harte Marker, unabhängig von JSON ===
-try {
-  for (let i=0;i<3;i++) {
-    const n = factory.spawn('gem', { x: 300 + i*40, y: 340, layer: 'actors' });
-    if (n && n.get) { try { const s = n.get(Sprite); if (s && 'tint' in s) s.tint = 0x5edfff; } catch {} }
-    scene.add(n);
-  }
-  console.log('[debug] 3 hard-coded markers spawned on actors');
-} catch (err) { console.error('[debug-markers]', err); }
-game.start(scene);
+  game.start(scene);
 
   // HUD meter
   let last = performance.now(), frames=0, fps=0;
@@ -242,3 +203,43 @@ game.start(scene);
   }
   meter();
 });
+
+
+
+// === DEBUG v2: Safe entity render even if `data` is undefined ===
+try {
+  const _data = (typeof data !== 'undefined' && data)
+             || (typeof mapData !== 'undefined' && mapData)
+             || (typeof level !== 'undefined' && level)
+             || (typeof currentMap !== 'undefined' && currentMap)
+             || (typeof window !== 'undefined' && window.__mapData)
+             || null;
+  if (_data) {
+    window.__mapData = _data;
+    const TS = (_data.tileSize ? _data.tileSize : 32);
+    console.log('[map.v2] entities:', _data.entities);
+    if (hud && typeof hud.setDebug === 'function') { hud.setDebug(`ents:${(_data.entities && _data.entities.length) || 0}`); }
+    if (Array.isArray(_data.entities)) {
+      for (const e of _data.entities) {
+        try {
+          const node = factory.spawn(e.type, { x: ((e.x||0)*TS), y: ((e.y||0)*TS), layer: 'actors' });
+          if (node && node.get) { try { const s = node.get(Sprite); if (s && 'tint' in s) s.tint = (e.type==='gem')?0x5edfff:(e.type==='bot')?0xff5353:(e.type==='crate')?0xffcc33:0xffffff; } catch {} }
+          scene.add(node);
+          console.log('[spawn.v2]', e.type, 'at', node && node.transform && node.transform.position, 'layer=actors');
+        } catch (err) { console.error('[spawn-error.v2]', e, err); }
+      }
+    }
+  } else {
+    console.warn('[map.v2] no map data reference available.');
+  }
+} catch (err) { console.error('[entities-debug.v2]', err); }
+
+// Keep the 3 hard-coded markers as a visibility check
+try {
+  for (let i=0;i<3;i++) {
+    const n = factory.spawn('gem', { x: 300 + i*40, y: 340, layer: 'actors' });
+    if (n && n.get) { try { const s = n.get(Sprite); if (s && 'tint' in s) s.tint = 0x5edfff; } catch {} }
+    scene.add(n);
+  }
+  console.log('[debug.v2] 3 hard-coded markers spawned on actors');
+} catch (err) { console.error('[debug-markers.v2]', err); }
