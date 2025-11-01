@@ -1,0 +1,14 @@
+// PATCH NOTE for engine/maploader.js
+// Fix the import to use the default export (singleton) from factory.js.
+// Replace your existing import line(s) with EXACTLY the following:
+//
+//     import factory from './factory.js';
+//
+// And wherever you previously called `EntityFactory.spawn(...)`,
+// call `factory.spawn(...)` instead.
+//
+// If you still want to create a separate factory instance, you can:
+//     import factory, { EntityFactory } from './factory.js';
+//     const myFactory = new EntityFactory();
+//
+// That's all required to fix: "doesn't provide an export named 'EntityFactory'".

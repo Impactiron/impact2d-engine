@@ -1,23 +1,42 @@
 <!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>!mpact2d – GitHub Pages Demo</title>
-  <link rel="icon" href="/impact2d-engine/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" href="/impact2d-engine/favicon.png">
-  <style>
-    html, body { margin:0; height:100%; background:#0b0e13; color:#e7e7e7; font-family:system-ui; }
-    #hud { position:fixed; top:8px; left:8px; background:rgba(0,0,0,.5); padding:6px 10px; font:12px/1 monospace; }
-    a { color:#9cf; }
-  </style>
-</head>
-<body>
-  <!-- Deployed under: https://impactiron.github.io/impact2d-engine/ -->
-  <div id="hud">loading…</div>
-  <!-- PIXI v8 via CDN -->
-  <script type="module" crossorigin src="https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs"></script>
-  <!-- Cache-busting version -->
-  <script type="module" src="./engine/main.js?v=2025-10-29a"></script>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>!mpact2d • Demo</title>
+
+    <!-- Correct favicon paths for GitHub Pages user site under /impact2d-engine/ -->
+    <link rel="icon" href="/impact2d-engine/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/impact2d-engine/favicon.png" />
+
+    <style>
+      html, body { margin:0; padding:0; background:#0e1218; color:#eaeaea; height:100%; }
+      #app { height:100%; display:flex; align-items:center; justify-content:center; }
+      .hud { position:fixed; top:.5rem; left:.5rem; font:12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:rgba(0,0,0,.6); padding:.25rem .5rem; border-radius:4px; }
+    </style>
+  </head>
+  <body>
+    <div id="app"><span class="hud">loading…</span></div>
+
+    <!-- Your existing main entry; adjust if your path differs -->
+    <script type="module">
+      // Ensure factory can be imported in both styles
+      import factory, { EntityFactory } from './engine/factory.js';
+
+      // Keep this import as in your project (engine/main.js). We keep it dynamic to avoid 404 in bare preview.
+      import('./engine/main.js').catch(err => {
+        console.error('Failed to load engine/main.js', err);
+        const hud = document.querySelector('.hud'); if (hud) hud.textContent = 'Failed to load main.js';
+      });
+
+      // Small smoke test: ensure the gem prefab exists
+      try {
+        if (!factory.hasPrefab('gem')) {
+          factory.prefab('gem', (() => opts => ({ tag:'gem', ...opts })));
+        }
+      } catch (e) {
+        console.warn('Factory smoke test:', e);
+      }
+    </script>
+  </body>
 </html>
