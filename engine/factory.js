@@ -40,9 +40,9 @@ export class EntityFactory {
   }
 }
 
-// --- default prefabs ---
 export const registerDefaultPrefabs = (factory) => {
-  factory.register('crate', { sprite: 'rect:18', layer: 'world', props: { loot: 1 }, collider: { size: 18, solid: true } });
-  factory.register('gem',   { sprite: 'rect:24', layer: 'world', props: { value: 10 }, collider: null });
-  factory.register('bot',   { sprite: 'rect:16', layer: 'world', props: { hp: 5 }, collider: { size: 16, solid: true } });
+  factory.register('crate', { sprite: 'rect:18', layer: 'actors', props: { loot: 1 }, collider: { size: 18, solid: true } });
+  factory.register('gem',   { sprite: 'rect:24', layer: 'actors', props: { value: 10 }, collider: null });
+  factory.register('bot',   { sprite: 'rect:16', layer: 'actors', props: { hp: 5 }, collider: { size: 16, solid: true } });
 };
+
