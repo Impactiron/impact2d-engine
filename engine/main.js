@@ -4,9 +4,8 @@ import { factory, registerDefaultPrefabs } from './factory.js';
 
 // --- factory bootstrap (single instance via window.factory) ---
 if (!window.factory) {
-  const f = new EntityFactory();
-  registerDefaultPrefabs(f);
-  window.factory = f;
+  try { registerDefaultPrefabs(); } catch (e) { console.warn('registerDefaultPrefabs()', e); }
+  window.factory = factory;
 }
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -24,7 +23,7 @@ import { MapLoader } from './maploader.js';
 // Ensure a global factory instance for debug/test spawns
 if (!(typeof window !== 'undefined' && window.factory)) {
   try {
-    const __f = new EntityFactory();
+    const __f = /* removed EntityFactory */;
     registerDefaultPrefabs(__f);
     if (typeof window !== 'undefined') window.factory = __f;
     // fall back to global var as well
