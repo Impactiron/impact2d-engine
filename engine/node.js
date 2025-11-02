@@ -1,23 +1,32 @@
-// engine/node.js – robust add/remove helpers compatible with Pixi v8
-import { Container, DisplayObject } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
+// engine/node.js — Pixi v8-safe helpers without DisplayObject import
+import { Container } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
 
-/**
- * Add a DisplayObject to a parent Container in a safe way.
- * - If the child already has a parent, it will be detached first.
- * - Works regardless of custom 'remove' helpers on the child.
- */
-export function add(parent, child) {
-  if (!parent || !child) return child;
-  const cont = (parent instanceof Container) ? parent : (parent.container || parent);
-  const obj  = (child instanceof DisplayObject) ? child : (child.container || child);
+/** resolve container-like value */
+function asContainer(x){
+  if (x instanceof Container) return x;
+  if (x && typeof x.addChild === 'function') return x;
+  return x && x.container ? x.container : null;
+}
+
+/** resolve display-object-like value */
+function asDisplay(x){
+  if (!x) return null;
+  // Duck-typing for Pixi v8: has 'parent' or can be added to Container
+  if (typeof x.emit === 'function' && ('parent' in x || 'transform' in x)) return x;
+  return x.container || x.view || x.sprite || x.node || x;
+}
+
+export function add(parent, child){
+  const cont = asContainer(parent);
+  const obj  = asDisplay(child);
   if (!cont || !obj) return child;
 
-  // Detach from old parent safely
   try {
-    if (obj.parent && obj.parent.removeChild) {
+    if (obj.parent && typeof obj.parent.removeChild === 'function'){
       obj.parent.removeChild(obj);
-    } else if (typeof obj.remove === 'function') {
-      // some frameworks add a helper; use it when available
+    } else if (typeof obj.removeFromParent === 'function'){
+      obj.removeFromParent();
+    } else if (typeof obj.remove === 'function'){
       try { obj.remove(); } catch {}
     }
   } catch {}
@@ -26,30 +35,24 @@ export function add(parent, child) {
   return child;
 }
 
-/**
- * Remove a DisplayObject from its current parent safely.
- */
-export function remove(child) {
-  if (!child) return;
-  const obj = (child instanceof DisplayObject) ? child : (child.container || child);
+export function remove(child){
+  const obj = asDisplay(child);
+  if (!obj) return;
   try {
-    if (obj && obj.parent && obj.parent.removeChild) obj.parent.removeChild(obj);
-    else if (obj && typeof obj.remove === 'function') obj.remove();
+    if (obj.parent && typeof obj.parent.removeChild === 'function') obj.parent.removeChild(obj);
+    else if (typeof obj.removeFromParent === 'function') obj.removeFromParent();
+    else if (typeof obj.remove === 'function') obj.remove();
   } catch {}
 }
 
-/**
- * Remove all children from a Container.
- */
-export function removeAll(parent) {
-  if (!parent) return;
-  const cont = (parent instanceof Container) ? parent : (parent.container || parent);
+export function removeAll(parent){
+  const cont = asContainer(parent);
+  if (!cont) return;
   try {
-    if (cont && cont.removeChildren) cont.removeChildren();
-    else if (cont && Array.isArray(cont.children)) {
-      // Fallback: manual detach
+    if (typeof cont.removeChildren === 'function') cont.removeChildren();
+    else if (Array.isArray(cont.children)){
       const copy = cont.children.slice();
-      for (const c of copy) {
+      for (const c of copy){
         try { if (c && c.parent && c.parent.removeChild) c.parent.removeChild(c); } catch {}
       }
     }
