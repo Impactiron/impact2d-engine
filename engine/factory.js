@@ -1,8 +1,8 @@
 class Crate {
   constructor(p = {}) {
     this.type = 'crate';
-    this.x = p.x|0;
-    this.y = p.y|0;
+    this.x = p.x | 0;
+    this.y = p.y | 0;
     this.size = p.size || 32;
     this.solid = true;
     this.sprite = { texture: 'crate', layer: 'objects', tint: p.tint };
@@ -13,15 +13,16 @@ class Crate {
 const _prefabs = new Map();
 
 export const factory = {
+  // only allow functions/classes (prevents cascade errors on spawn)
   register(name, ctor) {
-    if (!name || !ctor || !(['function', 'object'].includes(typeof ctor))) {
-      console.warn('[factory.register] invalid registration for', name);
+    if (!name || typeof ctor !== 'function') {
+      console.warn('[factory.register] expected constructor/function for', name);
       return;
     }
     _prefabs.set(name, ctor);
   },
 
-  // Supports: spawn(name, props) and spawn(name, game, props)
+  // tolerant: spawn(name, props) OR spawn(name, game, props)
   spawn(name, a = null, b = {}) {
     let game = null, props = {};
     if (a && typeof a === 'object' && !('addChild' in a) && !('addTo' in a)) {
