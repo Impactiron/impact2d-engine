@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Examples – Impact2D Engine</title>
+<style>
+  :root {
+    --bg: #0b0e14; --fg: #e6e6e6; --muted:#a8b0bf; --card:#151a22; --accent:#7aa2f7; --border:#202737;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: var(--bg); color: var(--fg);
+    font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+  header { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom: 16px; }
+  h1 { margin: 0; font-size: 24px; }
+  .meta { color: var(--muted); font-size: 14px; }
+  .toolbar { display:flex; gap: 12px; margin: 12px 0 20px; align-items:center; flex-wrap:wrap; }
+  input#filter {
+    width: 360px; max-width: 100%;
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); color: var(--fg);
+  }
+  .grid {
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;
+  }
+  .card {
+    display:block; padding: 14px 14px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    text-decoration:none; color: var(--fg);
+    transition: transform .1s ease, border-color .15s ease;
+  }
+  .card:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .card-title { font-weight: 600; margin-bottom: 8px; }
+  .card-path { color: var(--muted); font-size: 13px; }
+  footer { margin-top: 22px; color: var(--muted); font-size: 13px; }
+  .links a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Beispiele</h1>
+    <div class="meta">1 Seiten gefunden • Stand: 2025-11-02 11:15 UTC</div>
+  </header>
+  <div class="toolbar">
+    <input id="filter" placeholder="Filtern nach Titel oder Pfad …" aria-label="Filter" />
+    <div class="links">
+      <a href="../index.html">Zur Startseite</a>
+      &nbsp;•&nbsp;
+      <a href="../docs/index.md">Docs (Markdown)</a>
+    </div>
+  </div>
+  <div class="grid">
+    <a class="card" href="demo_behaviors.html">
+        <div class="card-title">!mpact2d – Behavior Demo</div>
+        <div class="card-path">demo_behaviors.html</div>
+      </a>
+  </div>
+
+  <script type="module">
+
+  const q = document.getElementById('filter');
+  const cards = Array.from(document.querySelectorAll('.card'));
+  q.addEventListener('input', () => {
+    const v = q.value.toLowerCase();
+    cards.forEach(c => {
+      const t = (c.querySelector('.card-title')?.textContent || '').toLowerCase();
+      const p = (c.querySelector('.card-path')?.textContent || '').toLowerCase();
+      c.style.display = (t.includes(v) || p.includes(v)) ? '' : 'none';
+    });
+  });
+
+  </script>
+</body>
+</html>

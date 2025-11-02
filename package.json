@@ -1,0 +1,21 @@
+{
+  "name": "impact2d-engine",
+  "version": "0.7.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . --ext .js,.mjs,.html",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "build": "node scripts/build.js",
+    "clean": "node -e \"import('fs').then(fs=>fs.promises.rm('dist',{recursive:true,force:true}))\""
+  },
+  "devDependencies": {
+    "eslint": "^9.12.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^17.10.3",
+    "eslint-plugin-promise": "^6.4.0",
+    "eslint-plugin-html": "^8.1.1",
+    "prettier": "^3.3.3"
+  }
+}
