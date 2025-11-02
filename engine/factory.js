@@ -47,6 +47,4 @@ export function registerDefaultPrefabs() {
   factory.register('gem', Gem);
   factory.register('bot', Bot);
 }
-
-
 export { factory, registerDefaultPrefabs };
