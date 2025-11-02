@@ -23,8 +23,7 @@ import { MapLoader } from './maploader.js';
 // Ensure a global factory instance for debug/test spawns
 if (!(typeof window !== 'undefined' && window.factory)) {
   try {
-    const __f = /* removed EntityFactory */;
-    registerDefaultPrefabs(__f);
+    const __f = registerDefaultPrefabs(__f);
     if (typeof window !== 'undefined') window.factory = __f;
     // fall back to global var as well
     // eslint-disable-next-line no-var
