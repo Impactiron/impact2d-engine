@@ -46,5 +46,4 @@ export function registerDefaultPrefabs() {
   class Bot { constructor(p={}){ this.x=p.x|0; this.y=p.y|0; this.type='bot'; this.size=p.size||16; this.speed=p.speed||1; } }
   factory.register('gem', Gem);
   factory.register('bot', Bot);
-}
-export { factory, registerDefaultPrefabs };
+};
