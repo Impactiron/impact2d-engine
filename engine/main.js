@@ -14,9 +14,7 @@ import { TileTypes, moveWithTileCollisions } from './tilemap-physics.js';
 import { TriggerSystem } from './triggers.js';
 import { getColliders } from './collider.js';
 import { PickupBehavior, PatrolBehavior } from './behaviors.js';
-import { MapLoader } , setCurrentMap from './maploader.js';
-
-
+import { loadMap, setCurrentMap, getCurrentMap } from './maploader.js';
 
 
 if (!window.factory) {
