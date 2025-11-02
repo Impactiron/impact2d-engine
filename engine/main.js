@@ -3,10 +3,8 @@ const BUILD = "MAPLOADER-HOTFIX2-2025-11-01";
 import { factory, registerDefaultPrefabs } from './factory.js';
 
 // --- factory bootstrap (single instance via window.factory) ---
-if (!window.factory) {
-  try { registerDefaultPrefabs(); } catch (e) { console.warn('registerDefaultPrefabs()', e); }
-  window.factory = factory;
-}
+if (!window.factory) { registerDefaultPrefabs(); window.factory = factory;}
+
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
 import { Game } from './game.js';
@@ -18,7 +16,8 @@ import { TileTypes, moveWithTileCollisions } from './tilemap-physics.js';
 import { TriggerSystem } from './triggers.js';
 import { getColliders } from './collider.js';
 import { PickupBehavior, PatrolBehavior } from './behaviors.js';
-import { MapLoader } from './maploader.js';
+import { factory, registerDefaultPrefabs } from './factory.js';
+
 
 // Ensure a global factory instance for debug/test spawns
 if (!(typeof window !== 'undefined' && window.factory)) {
