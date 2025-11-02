@@ -1,39 +1,67 @@
+// engine/game.js
 export class Game {
-  constructor(){
+  constructor(renderer) {
+    this.renderer = renderer;
     this.scene = null;
     this.running = false;
     this.lastTime = 0;
     this.acc = 0;
-    this.fixedStep = 16.6667;
+    this.fixedStep = 1000 / 60; // 60 FPS
+    this.loop = this.loop.bind(this);
   }
-  start(scene){
+
+  start(scene) {
     this.scene = scene;
-    if (this.scene && typeof this.scene.init === 'function') { try { this.scene.init(); } catch(e) { console.warn('[game] scene.init failed', e); } }
-    else if (this.scene && typeof this.scene._init === 'function') { try { this.scene._init(); } catch(e) { console.warn('[game] scene._init failed', e); } }
+
+    // Renderer anhängen (falls vorhanden)
+    if (this.renderer && typeof this.renderer.attach === 'function' && this.scene) {
+      try { this.renderer.attach(this.scene); }
+      catch (e) { console.warn('[game] renderer.attach failed', e); }
+    }
+
+    // Init: bevorzugt "init", fallback auf "_init"
+    if (this.scene) {
+      try {
+        if (typeof this.scene.init === 'function') this.scene.init();
+        else if (typeof this.scene._init === 'function') this.scene._init();
+      } catch (e) { console.warn('[game] scene init failed', e); }
+    }
+
     this.running = true;
     this.lastTime = performance.now();
     requestAnimationFrame(this.loop);
   }
-  pause(){ this.running = false; }
-  resume(){ if(this.running) return; this.running = true; this.lastTime = performance.now(); requestAnimationFrame(this.loop); }
-  loop = (t) => {
+
+  stop() { this.running = false; }
+
+  loop(t) {
     if (!this.running || !this.scene) return;
-    const dt = t - this.lastTime; this.lastTime = t; this.acc += dt;
+
+    const dt = t - this.lastTime;
+    this.lastTime = t;
+    this.acc += dt;
+
+    // Fixed update (neu) oder Fallback (alt)
     while (this.acc >= this.fixedStep) {
-      if (typeof this.scene.fixedUpdate === 'function') { try { this.scene.fixedUpdate(this.fixedStep); } catch(e){ console.warn('[game] fixedUpdate failed', e);} }
-      else if (typeof this.scene._fixedUpdate === 'function') { try { this.scene._fixedUpdate(this.fixedStep); } catch(e){} }
+      try {
+        if (typeof this.scene.fixedUpdate === 'function') this.scene.fixedUpdate(this.fixedStep);
+        else if (typeof this.scene._fixedUpdate === 'function') this.scene._fixedUpdate(this.fixedStep);
+      } catch (e) { console.warn('[game] fixedUpdate failed', e); }
       this.acc -= this.fixedStep;
     }
-    if (typeof this.scene.update === 'function') { try { this.scene.update(dt); } catch(e){ console.warn('[game] update failed', e);} }
-    else if (typeof this.scene._update === 'function') { try { this.scene._update(dt); } catch(e){} }
 
-    if (typeof this.scene.render === 'function') { try { this.scene.render(); } catch(e){ console.warn('[game] render failed', e);} }
-    else if (typeof this.scene._render === 'function') { try { this.scene._render(null); } catch(e){} }
+    // Variable update (neu/alt)
+    try {
+      if (typeof this.scene.update === 'function') this.scene.update(dt);
+      else if (typeof this.scene._update === 'function') this.scene._update(dt);
+    } catch (e) { console.warn('[game] update failed', e); }
 
-    requestAnimationFrame(this.loop);
-  }
-    this.scene._update(dt);
-    this.scene._render(null);
+    // Render-Hook ist optional (Pixi rendert ohnehin über Ticker nach attach())
+    try {
+      if (typeof this.scene.render === 'function') this.scene.render();
+      else if (typeof this.scene._render === 'function') this.scene._render(null);
+    } catch (e) { console.warn('[game] render failed', e); }
+
     requestAnimationFrame(this.loop);
   }
 }
