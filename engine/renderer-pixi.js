@@ -106,7 +106,8 @@ export class PixiRenderer {
         }
         c._pixi = display;
       }
-      for(const ch of node.children) create(ch);
+      const kids = Array.isArray(node.children) ? node.children : [];
+      for (const ch of kids) create(ch);
     };
     create(scene);
     for(const entry of this.layers.values()) this._applyCameraTo(entry);

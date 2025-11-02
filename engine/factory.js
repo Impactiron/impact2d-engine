@@ -15,16 +15,37 @@ const _prefabs = new Map();
 
 export const factory = {
   register(name, ctor) {
-    if (!name || typeof ctor !== 'function') {
+    if (!name || (!ctor) || !(['function','object'].includes(typeof ctor))) {
       console.warn('[factory.register] invalid registration for', name);
       return;
     }
     _prefabs.set(name, ctor);
+  }
+    _prefabs.set(name, ctor);
   },
-  spawn(name, game, props = {}) {
+  spawn(name, a = null, b = {}) {
+    // supports spawn(name, props) and spawn(name, game, props)
+    let game = null, props = {};
+    if (a && typeof a === 'object' && !('addChild' in a) && !('addTo' in a)) {
+      props = a || {};
+    } else {
+      game = a || null;
+      props = b || {};
+    }
     const Ctor = _prefabs.get(name);
     if (!Ctor) {
       console.warn(`[factory.spawn] unknown prefab: ${name}`);
+      return null;
+    }
+    const entity = new Ctor(props);
+    try {
+      if (entity && typeof entity.addTo === 'function' && game) entity.addTo(game);
+      else if (game && typeof game.addChild === 'function') game.addChild(entity);
+    } catch (e) {
+      console.warn('[factory.spawn] attach skipped:', e);
+    }
+    return entity;
+  }`);
       return null;
     }
     const entity = new Ctor(props);
