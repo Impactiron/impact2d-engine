@@ -106,7 +106,7 @@ export class PixiRenderer {
         }
         c._pixi = display;
       }
-      const kids = Array.isArray(node.children) ? node.children : [];
+      const kids = (node && node.children) ? (Array.isArray(node.children) ? node.children : Array.from(node.children)) : [];
       for (const ch of kids) create(ch);
     };
     create(scene);
