@@ -3,7 +3,7 @@ import { factory, registerDefaultPrefabs } from './factory.js';
 
 
 
-import { Scene } from './node.js';
+import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
 import { Game } from './game.js';
 import { Input } from './input.js';
