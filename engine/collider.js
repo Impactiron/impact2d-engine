@@ -1,5 +1,6 @@
 // !mpact2d — Collider component (AABB) + simple registry for dynamic checks
-import { Component, Transform } from './component.js';
+import { Component } from './component.js';
+import { Transform } from './component.js';
 
 const _colliders = new Set(); // store components
 
