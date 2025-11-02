@@ -109,19 +109,24 @@ renderer.init().then(async ()=>{
     TS = mapMeta.tileSize; tiles = data.tiles; mapName = data.name || res.url;
     lastEvent = 'Map loaded: ' + mapName;
   ;
-    const cont = renderer.getLayerContainer('world');
-    for(let y=0;y<tiles.length;y++){ 
-      for(let x=0;x<tiles[y].length;x++){ 
-        const v=tiles[y][x]; 
-        const col=palette[v]??0x333333; 
-        const g=new Graphics(); 
-        g.rect(0,0,TS,TS).fill(col); 
-        g.x=x*TS; g.y=y*TS; 
-        cont.addChild(g); 
-      } 
     }
-    lastEvent = 'Map fallback active';
-  }
+catch (e) {
+  console.warn('[map.load] failed or incomplete, using fallback', e);
+  lastEvent = 'Map fallback active';
+  tiles = makeFallbackTiles(); TS = 32;
+  try {
+    const cont = renderer.getLayerContainer('world');
+    if (cont && cont.removeChildren) cont.removeChildren();
+    for (let y=0; y<tiles.length; y++){
+      for (let x=0; x<tiles[y].length; x++){
+        const v = tiles[y][x];
+        const col = (v===0?0x333333 : v===1?0x666666 : v===2?0xff4444 : v===3?0x44aaff : 0x88cc66);
+        const g = new Graphics(); g.rect(0,0,TS,TS).fill(col); g.x=x*TS; g.y=y*TS; cont && cont.addChild(g);
+      }
+    }
+  } catch (_){ /* fallback draw best effort */ }
+}
+
 
   // Ensure default layer exists for sprites
   renderer.defineLayer('default', 1.0);
