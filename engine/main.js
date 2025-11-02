@@ -234,32 +234,38 @@ try {
     window.__mapData = _data;
     const TS = (_data.tileSize ? _data.tileSize : 32);
     console.log('[map.v2] entities:', _data.entities);
-    if (hud && typeof hud.setDebug === 'function') { hud.setDebug(`ents:${(_data.entities && _data.entities.length) || 0}`); }
+    if (typeof hud !== 'undefined' && hud && typeof hud.setDebug === 'function') {
+      hud.setDebug(`ents:${(_data.entities && _data.entities.length) || 0}`);
+    }
     if (Array.isArray(_data.entities)) {
       for (const e of _data.entities) {
         try {
           const node = window.factory.spawn(e.type, { x: ((e.x||0)*TS), y: ((e.y||0)*TS), layer: 'actors' });
           if (node && node.get) {
-  try {
-    const s = node.get(Sprite);
-    if (s && 'tint' in s) {
-      let tint = 0xffffff;
-      if (e.type === 'gem') tint = 0x5edfff;
-      else if (e.type === 'bot') tint = 0xff5353;
-      else if (e.type === 'crate') tint = 0xffcc33;
-      s.tint = tint;
-    }
-  } catch {}
-}
-scene.add(node);
+            try {
+              const s = node.get(Sprite);
+              if (s && 'tint' in s) {
+                let tint = 0xffffff;
+                if (e.type === 'gem') tint = 0x5edfff;
+                else if (e.type === 'bot') tint = 0xff5353;
+                else if (e.type === 'crate') tint = 0xffcc33;
+                s.tint = tint;
+              }
+            } catch {}
+          }
+          scene.add(node);
           console.log('[spawn.v2]', e.type, 'at', node && node.transform && node.transform.position, 'layer=actors');
-        
+        } catch (err) {
+          console.warn('[spawn.v2] failed', err);
+        }
       }
     }
   } else {
     console.warn('[map.v2] no map data reference available.');
   }
-
+} catch (e) {
+  console.warn('[map.v2] debug block error', e);
+}
 
 // Keep the 3 hard-coded markers as a visibility check
 try {
@@ -269,5 +275,4 @@ try {
     scene.add(n);
   }
   console.log('[debug.v2] 3 hard-coded markers spawned on actors');
-} catch (e) { console.warn('[debug] trailing try-block closed', e); }
-}}
+} catch (e) { console.warn('[debug] marker spawn failed', e); }
