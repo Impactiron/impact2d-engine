@@ -40,8 +40,8 @@ export const factory = {
   list() { return Array.from(_prefabs.keys()); }
 };
 
-export \1
-  try { factory.register('crate', Crate); } catch(e) { console.warn('crate already registered'); }
+export function registerDefaultPrefabs() {
+  try { factory.register('crate', Crate); } catch (e) { /* ignore if double */ }
   class Gem { constructor(p={}){ this.x=p.x|0; this.y=p.y|0; this.type='gem'; this.size=p.size||16; } }
   class Bot { constructor(p={}){ this.x=p.x|0; this.y=p.y|0; this.type='bot'; this.size=p.size||16; this.speed=p.speed||1; } }
   factory.register('gem', Gem);
