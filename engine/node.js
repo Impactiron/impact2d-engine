@@ -1,42 +1,57 @@
-import { Component } from './component.js';
-let NODE_ID = 1;
-export class Node {
-  constructor(name='Node'){
-    this.id = NODE_ID++;
-    this.name = name;
-    this.active = true;
-    this.parent = null;
-    this.children = [];
-    this._components = [];
-  }
-  add(child){
-    child.remove();
-    child.parent = this;
-    this.children.push(child);
-    return child;
-  }
-  remove(){
-    if(!this.parent) return;
-    const i = this.parent.children.indexOf(this);
-    if(i>=0) this.parent.children.splice(i,1);
-    this.parent=null;
-  }
-  addComponent(c){
-    c.owner = this;
-    this._components.push(c);
-    c.onAttach?.();
-    return c;
-  }
-  getComponent(ctor){
-    for(const c of this._components) if(c instanceof ctor) return c;
-    return null;
-  }
-  getComponents(ctor){
-    return this._components.filter(c=>c instanceof ctor);
-  }
-  _init(){ for(const c of this._components) c.onInit?.(); for(const ch of this.children) ch._init(); }
-  _update(dt){ if(!this.active) return; for(const c of this._components) c.onUpdate?.(dt); for(const ch of this.children) ch._update(dt); }
-  _fixedUpdate(st){ if(!this.active) return; for(const c of this._components) c.onFixedUpdate?.(st); for(const ch of this.children) ch._fixedUpdate(st); }
-  _render(ctx){ if(!this.active) return; for(const c of this._components) c.onRender?.(ctx); for(const ch of this.children) ch._render(ctx); }
+// engine/node.js – robust add/remove helpers compatible with Pixi v8
+import { Container, DisplayObject } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
+
+/**
+ * Add a DisplayObject to a parent Container in a safe way.
+ * - If the child already has a parent, it will be detached first.
+ * - Works regardless of custom 'remove' helpers on the child.
+ */
+export function add(parent, child) {
+  if (!parent || !child) return child;
+  const cont = (parent instanceof Container) ? parent : (parent.container || parent);
+  const obj  = (child instanceof DisplayObject) ? child : (child.container || child);
+  if (!cont || !obj) return child;
+
+  // Detach from old parent safely
+  try {
+    if (obj.parent && obj.parent.removeChild) {
+      obj.parent.removeChild(obj);
+    } else if (typeof obj.remove === 'function') {
+      // some frameworks add a helper; use it when available
+      try { obj.remove(); } catch {}
+    }
+  } catch {}
+
+  try { cont.addChild(obj); } catch {}
+  return child;
 }
-export class Scene extends Node { constructor(name='Scene'){ super(name); } }
+
+/**
+ * Remove a DisplayObject from its current parent safely.
+ */
+export function remove(child) {
+  if (!child) return;
+  const obj = (child instanceof DisplayObject) ? child : (child.container || child);
+  try {
+    if (obj && obj.parent && obj.parent.removeChild) obj.parent.removeChild(obj);
+    else if (obj && typeof obj.remove === 'function') obj.remove();
+  } catch {}
+}
+
+/**
+ * Remove all children from a Container.
+ */
+export function removeAll(parent) {
+  if (!parent) return;
+  const cont = (parent instanceof Container) ? parent : (parent.container || parent);
+  try {
+    if (cont && cont.removeChildren) cont.removeChildren();
+    else if (cont && Array.isArray(cont.children)) {
+      // Fallback: manual detach
+      const copy = cont.children.slice();
+      for (const c of copy) {
+        try { if (c && c.parent && c.parent.removeChild) c.parent.removeChild(c); } catch {}
+      }
+    }
+  } catch {}
+}
