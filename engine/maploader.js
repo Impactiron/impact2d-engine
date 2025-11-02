@@ -1,3 +1,4 @@
+export let currentMap = null;
 // engine/maploader.js
 import { factory } from './factory.js';
 import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
@@ -33,9 +34,7 @@ export class MapLoader {
           const v = row[x];
           const col = palette.hasOwnProperty(v) ? palette[v] : null;
           if (col == null) continue;
-          g.beginFill(col);
-          g.drawRect(x*tileSize, y*tileSize, tileSize, tileSize);
-          g.endFill();
+          g.rect(x*tileSize, y*tileSize, tileSize, tileSize).fill(col);
         }
       }
       cont.addChild(g);
@@ -63,3 +62,7 @@ export async function loadMap(url, game){
   }
   return { data, entities };
 }
+
+export function setCurrentMap(map){ currentMap = map || null; }
+
+export function getCurrentMap(){ return currentMap; }
