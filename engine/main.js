@@ -1,19 +1,8 @@
 
-if (!window.factory) {
-  try { registerDefaultPrefabs(); } catch (e) { console.warn('registerDefaultPrefabs()', e); }
-  window.factory = factory;
-}
-
-const BUILD = "MAPLOADER-HOTFIX2-2025-11-01";
-
 import { factory, registerDefaultPrefabs } from './factory.js';
 
-// --- factory bootstrap (single instance via window.factory) ---
-catch (e) { console.warn('registerDefaultPrefabs()', e); }
-  window.factory = factory;
-} catch (e) { console.warn('registerDefaultPrefabs()', e); }
-  window.factory = factory;
-}
+
+
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
 import { Game } from './game.js';
@@ -27,22 +16,18 @@ import { getColliders } from './collider.js';
 import { PickupBehavior, PatrolBehavior } from './behaviors.js';
 import { MapLoader } from './maploader.js';
 
-// Ensure a global factory instance for debug/test spawns
-if (!(typeof window !== 'undefined' && window.factory)) {
-  try {
-    const __f = /* removed EntityFactory */;
-    registerDefaultPrefabs(__f);
-    if (typeof window !== 'undefined') window.factory = __f;
-    // fall back to global var as well
-    // eslint-disable-next-line no-var
 
-  } catch (err) {
-    console.error('[factory-boot]', err);
-  }
-} else {
-  // eslint-disable-next-line no-var
 
+
+if (!window.factory) {
+  try { registerDefaultPrefabs(); } catch (e) { console.warn('registerDefaultPrefabs()', e); }
+  window.factory = factory;
 }
+
+
+
+const BUILD = "MAPLOADER-HOTFIX2-2025-11-01";
+
 
 
 // Scene & Player
@@ -123,12 +108,7 @@ renderer.init().then(async ()=>{
     mapMeta = loader.buildFromData(scene, data);
     TS = mapMeta.tileSize; tiles = data.tiles; mapName = data.name || res.url;
     lastEvent = 'Map loaded: ' + mapName;
-  } catch(e) {
-    // Fallback to generated tiles
-    renderer.defineLayer('world', 1.0);
-    renderer.defineLayer('default', 1.0);
-    tiles = makeFallbackTiles();
-    const palette = { 0:0x202733, 1:0x586174, 2:0xb24b36, 3:0x2f6aa5, 4:0xa68a5b };
+  ;
     const cont = renderer.getLayerContainer('world');
     for(let y=0;y<tiles.length;y++){ 
       for(let x=0;x<tiles[y].length;x++){ 
@@ -254,16 +234,27 @@ try {
       for (const e of _data.entities) {
         try {
           const node = window.factory.spawn(e.type, { x: ((e.x||0)*TS), y: ((e.y||0)*TS), layer: 'actors' });
-          if (node && node.get) { try { const s = node.get(Sprite); if (s && 'tint' in s) s.tint = (e.type==='gem')?0x5edfff:(e.type==='bot')?0xff5353:(e.type==='crate')?0xffcc33:0xffffff; } catch {} }
-          scene.add(node);
+          if (node && node.get) {
+  try {
+    const s = node.get(Sprite);
+    if (s && 'tint' in s) {
+      let tint = 0xffffff;
+      if (e.type === 'gem') tint = 0x5edfff;
+      else if (e.type === 'bot') tint = 0xff5353;
+      else if (e.type === 'crate') tint = 0xffcc33;
+      s.tint = tint;
+    }
+  } catch {}
+}
+scene.add(node);
           console.log('[spawn.v2]', e.type, 'at', node && node.transform && node.transform.position, 'layer=actors');
-        } catch (err) { console.error('[spawn-error.v2]', e, err); }
+        
       }
     }
   } else {
     console.warn('[map.v2] no map data reference available.');
   }
-} catch (err) { console.error('[entities-debug.v2]', err); }
+
 
 // Keep the 3 hard-coded markers as a visibility check
 try {
@@ -273,4 +264,5 @@ try {
     scene.add(n);
   }
   console.log('[debug.v2] 3 hard-coded markers spawned on actors');
-} catch (err) { console.error('[debug-markers.v2]', err); }
+} catch (e) { console.warn('[debug] trailing try-block closed', e); }
+}}
