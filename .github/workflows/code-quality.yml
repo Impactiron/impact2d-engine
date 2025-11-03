@@ -1,0 +1,107 @@
+name: JavaScript Code Quality Check
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - '**.js'
+      - '**.html'
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - '**.js'
+      - '**.html'
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Check JavaScript Code Quality
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Check for exports before imports
+      run: |
+        echo "🔍 Checking for exports before imports..."
+        ERROR=0
+        
+        find . -name "*.js" -type f \
+          ! -path "./node_modules/*" \
+          ! -path "./backup/*" \
+          ! -path "./.git/*" | while read file; do
+          
+          FIRST_EXPORT=$(grep -n "^export " "$file" | head -1 | cut -d: -f1)
+          FIRST_IMPORT=$(grep -n "^import " "$file" | head -1 | cut -d: -f1)
+          
+          if [ -n "$FIRST_EXPORT" ] && [ -n "$FIRST_IMPORT" ]; then
+            if [ "$FIRST_EXPORT" -lt "$FIRST_IMPORT" ]; then
+              echo "❌ ERROR: Export before import in $file"
+              echo "   First export at line $FIRST_EXPORT"
+              echo "   First import at line $FIRST_IMPORT"
+              ERROR=1
+            fi
+          fi
+        done
+        
+        if [ $ERROR -eq 1 ]; then
+          exit 1
+        fi
+        echo "✅ No exports before imports found"
+    
+    - name: Check HTML files for proper module loading
+      run: |
+        echo "🔍 Checking HTML files for type='module' attribute..."
+        
+        find . -name "*.html" -type f \
+          ! -path "./node_modules/*" \
+          ! -path "./backup/*" \
+          ! -path "./.git/*" | while read file; do
+          
+          if grep -q '<script[^>]*src=[^>]*\.js' "$file"; then
+            if ! grep -q '<script[^>]*type="module"[^>]*src=[^>]*\.js\|<script[^>]*src=[^>]*\.js[^>]*type="module"' "$file"; then
+              echo "⚠️  WARNING: Script without type='module' in $file"
+              grep -n '<script' "$file"
+            fi
+          fi
+        done
+        
+        echo "✅ HTML module loading check complete"
+    
+    - name: Check JavaScript syntax
+      run: |
+        echo "🔍 Checking JavaScript syntax..."
+        ERROR=0
+        
+        find . -name "*.js" -type f \
+          ! -path "./node_modules/*" \
+          ! -path "./backup/*" \
+          ! -path "./.git/*" | while read file; do
+          
+          if ! node --check "$file" 2>/dev/null; then
+            echo "❌ Syntax error in $file"
+            node --check "$file" 2>&1 || true
+            ERROR=1
+          fi
+        done
+        
+        if [ $ERROR -eq 1 ]; then
+          exit 1
+        fi
+        echo "✅ All JavaScript files have valid syntax"
+    
+    - name: Generate Summary
+      if: always()
+      run: |
+        echo "### 📊 Code Quality Check Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ JavaScript code quality checks completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Files checked:**" >> $GITHUB_STEP_SUMMARY
+        echo "- JavaScript files: $(find . -name '*.js' -type f ! -path './node_modules/*' ! -path './backup/*' | wc -l)" >> $GITHUB_STEP_SUMMARY
+        echo "- HTML files: $(find . -name '*.html' -type f ! -path './node_modules/*' ! -path './backup/*' | wc -l)" >> $GITHUB_STEP_SUMMARY
