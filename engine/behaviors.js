@@ -37,8 +37,11 @@ export class PickupBehavior extends Behavior{
       this.picked = true;
       const s = this.owner.getComponent(Sprite);
       if(s && s._pixi) s._pixi.visible = false;
-      if(this.onPickup){ try{ this.onPickup(this.owner); }catch(e){} }
-    }
+     if(this.onPickup){ 
+  try { 
+    this.onPickup(this.owner); 
+  } catch(e) { 
+    console.warn('[PickupBehavior] onPickup callback error:', e); 
   }
 }
 
