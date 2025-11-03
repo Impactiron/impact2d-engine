@@ -1,7 +1,8 @@
-export let currentMap = null;
 // engine/maploader.js
 import { factory } from './factory.js';
 import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
+
+export let currentMap = null;
 
 /**
  * MapLoader class for loading and building game maps
@@ -56,9 +57,9 @@ export class MapLoader {
     if (cont){
       cont.removeChildren();
       const g = new Graphics();
-      for (let y=0; y<tiles.length; y++){
+      for (let y=0; y<tiles.length; y++){ 
         const row = tiles[y];
-        for (let x=0; x<row.length; x++){
+        for (let x=0; x<row.length; x++){ 
           const v = row[x];
           const col = palette.hasOwnProperty(v) ? palette[v] : null;
           if (col == null) continue;
