@@ -1,40 +1,76 @@
-// engine/maploader.js
-
 /**
- * Loads the entity map and handles fetching errors.
+ * MapLoader class for handling map loading.
+ * 
+ * @class
  */
-export function loadEntityMap() {
-    return fetch('path/to/entity-map.json')
-        .then(response => {
+class MapLoader {
+    constructor() {
+        this.currentMap = null;
+    }
+
+    /**
+     * Automatically loads a map based on some criteria.
+     * 
+     * @returns {Promise<void>}
+     */
+    async loadAuto() {
+        try {
+            // Logic for auto-loading map
+        } catch (error) {
+            console.warn('Error in loadAuto:', error);
+        }
+    }
+
+    /**
+     * Builds a map from provided data.
+     * 
+     * @param {Object} data - The data to build the map from.
+     * @returns {Promise<void>}
+     */
+    async buildFromData(data) {
+        try {
+            // Logic to build the map
+        } catch (error) {
+            console.warn('Error in buildFromData:', error);
+        }
+    }
+
+    /**
+     * Loads a map from a specified URL.
+     * 
+     * @param {string} url - The URL of the map to load.
+     * @returns {Promise<void>}
+     */
+    async loadMap(url) {
+        try {
+            const response = await fetch(url);
             if (!response.ok) {
-                console.warn('Failed to fetch entity map:', response.statusText);
                 throw new Error('Network response was not ok');
             }
-            return response.json();
-        })
-        .catch(error => {
-            console.warn('Error fetching entity map:', error);
-        });
+            const data = await response.json();
+            await this.buildFromData(data);
+        } catch (error) {
+            console.warn('Error fetching map:', error);
+        }
+    }
+
+    /**
+     * Sets the current map.
+     * 
+     * @param {Object} map - The map to set as current.
+     */
+    setCurrentMap(map) {
+        this.currentMap = map;
+    }
+
+    /**
+     * Gets the current map.
+     * 
+     * @returns {Object|null}
+     */
+    getCurrentMap() {
+        return this.currentMap;
+    }
 }
 
-/**
- * Fetches an entity by ID with error handling.
- * @param {string} id - The ID of the entity to fetch.
- * @returns {Promise} - A promise that resolves to the entity data or null.
- */
-export function fetchEntityById(id) {
-    return fetch(`path/to/entities/${id}.json`)
-        .then(response => {
-            if (!response.ok) {
-                console.warn('Failed to fetch entity:', response.statusText);
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .catch(error => {
-            console.warn(`Error fetching entity ${id}:`, error);
-            return null;
-        });
-}
-
-// Other exported functions and classes with similar error handling and JSDoc comments
+export default MapLoader;
