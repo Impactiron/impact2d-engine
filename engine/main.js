@@ -1,7 +1,4 @@
-
 import { factory, registerDefaultPrefabs } from './factory.js';
-
-
 
 import { Scene, Node } from './node.js';
 import { Component, Transform } from './component.js';
@@ -16,17 +13,12 @@ import { getColliders } from './collider.js';
 import { PickupBehavior, PatrolBehavior } from './behaviors.js';
 import { loadMap, setCurrentMap, getCurrentMap } from './maploader.js';
 
-
 if (!window.factory) {
   try { registerDefaultPrefabs(); } catch (e) { console.warn('registerDefaultPrefabs()', e); }
   window.factory = factory;
 }
 
-
-
 const BUILD = "MAPLOADER-HOTFIX2-2025-11-01";
-
-
 
 // Scene & Player
 const scene = new Scene('Root');
@@ -106,25 +98,22 @@ renderer.init().then(async ()=>{
     mapMeta = loader.buildFromData(scene, data);
     TS = mapMeta.tileSize; tiles = data.tiles; mapName = data.name || res.url;
     lastEvent = 'Map loaded: ' + mapName;
-  ;
-    }
-catch (e) {
-  console.warn('[map.load] failed or incomplete, using fallback', e);
-  lastEvent = 'Map fallback active';
-  tiles = makeFallbackTiles(); TS = 32;
-  try {
-    const cont = renderer.getLayerContainer('world');
-    if (cont && cont.removeChildren) cont.removeChildren();
-    for (let y=0; y<tiles.length; y++){
-      for (let x=0; x<tiles[y].length; x++){
-        const v = tiles[y][x];
-        const col = (v===0?0x333333 : v===1?0x666666 : v===2?0xff4444 : v===3?0x44aaff : 0x88cc66);
-        const g = new Graphics(); g.rect(0,0,TS,TS).fill(col); g.x=x*TS; g.y=y*TS; cont && cont.addChild(g);
+  } catch (e) {
+    console.warn('[map.load] failed or incomplete, using fallback', e);
+    lastEvent = 'Map fallback active';
+    tiles = makeFallbackTiles(); TS = 32;
+    try {
+      const cont = renderer.getLayerContainer('world');
+      if (cont && cont.removeChildren) cont.removeChildren();
+      for (let y=0; y<tiles.length; y++){
+        for (let x=0; x<tiles[y].length; x++){
+          const v = tiles[y][x];
+          const col = (v===0?0x333333 : v===1?0x666666 : v===2?0xff4444 : v===3?0x44aaff : 0x88cc66);
+          const g = new Graphics(); g.rect(0,0,TS,TS).fill(col); g.x=x*TS; g.y=y*TS; cont && cont.addChild(g);
+        }
       }
-    }
-  } catch (_){ /* fallback draw best effort */ }
-}
-
+    } catch (_){ /* fallback draw best effort */ }
+  }
 
   // Ensure default layer exists for sprites
   renderer.defineLayer('default', 1.0);
@@ -197,7 +186,7 @@ catch (e) {
   const triggers = new TriggerSystem();
   const zone = (tx, ty, tw, th, opts={}) => ({ x: tx*TS, y: ty*TS, w: tw*TS, h: th*TS, ...opts });
   triggers.add(zone(3,2,3,2,{ tag:'hint', once:true, onEnter:() => { lastEvent='Map active • Use WASD/Arrows'; } }));
-  class TriggerDriver extends Component { onUpdate(){ const tr = playerNode.getComponent(Transform); const rect = { x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE }; triggers.tick(rect, { time: performance.now() }); } }
+  class TriggerDriver extends Component { onUpdate(){ const tr = playerNode.getComponent(Transform); const rect = { x: tr.position.x, y: tr.position.y, w: PLAYER_SIZE, h: PLAYER_SIZE }; triggers.check(rect); } }
   playerNode.addComponent(new TriggerDriver());
 
   // Start
