@@ -1,76 +1,68 @@
-/**
- * MapLoader class for handling map loading.
- * 
- * @class
- */
-class MapLoader {
-    constructor() {
-        this.currentMap = null;
-    }
+export let currentMap = null;
+// engine/maploader.js
+import { factory } from './factory.js';
+import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
 
-    /**
-     * Automatically loads a map based on some criteria.
-     * 
-     * @returns {Promise<void>}
-     */
-    async loadAuto() {
-        try {
-            // Logic for auto-loading map
-        } catch (error) {
-            console.warn('Error in loadAuto:', error);
+export class MapLoader {
+  constructor(renderer){
+    this.renderer = renderer;
+  }
+  async loadAuto(){
+    const params = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
+    const url = params.get('map') || 'maps/test-map.json';
+    const res = await fetch(url);
+    const data = await res.json();
+    return { url, data };
+  }
+  buildFromData(scene, data){
+    const r = this.renderer;
+    const tileSize = data.tileSize || data.tilesize || 32;
+    const tiles = data.tiles || [];
+    const palette = data.palette || {};
+    // layers
+    if (r && typeof r.defineLayer === 'function'){
+      r.defineLayer('world', 1.0);
+      r.defineLayer('default', 1.0);
+    }
+    const cont = r && typeof r.getLayerContainer === 'function' ? r.getLayerContainer('world') : null;
+    if (cont){
+      cont.removeChildren();
+      const g = new Graphics();
+      for (let y=0; y<tiles.length; y++){
+        const row = tiles[y];
+        for (let x=0; x<row.length; x++){
+          const v = row[x];
+          const col = palette.hasOwnProperty(v) ? palette[v] : null;
+          if (col == null) continue;
+          g.rect(x*tileSize, y*tileSize, tileSize, tileSize).fill(col);
         }
+      }
+      cont.addChild(g);
     }
-
-    /**
-     * Builds a map from provided data.
-     * 
-     * @param {Object} data - The data to build the map from.
-     * @returns {Promise<void>}
-     */
-    async buildFromData(data) {
-        try {
-            // Logic to build the map
-        } catch (error) {
-            console.warn('Error in buildFromData:', error);
-        }
+    // entities
+    const list = Array.isArray(data.entities) ? data.entities : (data.objects || []);
+    for (const spec of list){
+      if (!spec || !spec.type) continue;
+      try { factory.spawn(spec.type, scene, spec.props || spec); } catch(e){ /* ignore */ }
     }
-
-    /**
-     * Loads a map from a specified URL.
-     * 
-     * @param {string} url - The URL of the map to load.
-     * @returns {Promise<void>}
-     */
-    async loadMap(url) {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            await this.buildFromData(data);
-        } catch (error) {
-            console.warn('Error fetching map:', error);
-        }
-    }
-
-    /**
-     * Sets the current map.
-     * 
-     * @param {Object} map - The map to set as current.
-     */
-    setCurrentMap(map) {
-        this.currentMap = map;
-    }
-
-    /**
-     * Gets the current map.
-     * 
-     * @returns {Object|null}
-     */
-    getCurrentMap() {
-        return this.currentMap;
-    }
+    return { tileSize, tilesWidth: (tiles[0]?.length||0), tilesHeight: tiles.length };
+  }
 }
 
-export default MapLoader;
+// keep backward compatibility
+export async function loadMap(url, game){
+  const res = await fetch(url);
+  const data = await res.json();
+  const list = Array.isArray(data.entities) ? data.entities : (data.objects || []);
+  const entities = [];
+  for (const spec of list) {
+    if (!spec || !spec.type) continue;
+    const e = factory.spawn(spec.type, game, spec.props || spec);
+    if (e) entities.push(e);
+  }
+  return { data, entities };
+}
+
+export function setCurrentMap(map){ currentMap = map || null; }
+
+export function getCurrentMap(){ return currentMap; }
