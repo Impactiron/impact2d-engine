@@ -141,11 +141,11 @@ export class ReplayPlayer {
     if (!this.playing || this.frames.length === 0) return null;
 
     const elapsed = (performance.now() - this.startTime) * this.speed;
-    
+
     // Find the frame that should be playing now
     while (this.currentFrameIndex < this.frames.length) {
       const frame = this.frames[this.currentFrameIndex];
-      
+
       if (frame.timestamp > elapsed) {
         break;
       }

@@ -42,25 +42,23 @@ export default [
         onmessage: 'readonly',
         alert: 'readonly',
         confirm: 'readonly',
-        prompt: 'readonly'
+        prompt: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly'
       }
     },
     rules: {
       'no-undef': 'error',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      'eqeqeq': 'error',
-      'semi': ['error', 'always'],
-      'quotes': ['error', 'single', { avoidEscape: true }],
+      eqeqeq: 'error',
+      semi: ['error', 'always'],
+      quotes: ['error', 'single', { avoidEscape: true }],
       'no-console': ['error', { allow: ['warn', 'error'] }]
     }
   },
   {
-    ignores: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      'backup/**',
-      '.git/**'
-    ]
+    ignores: ['node_modules/**', 'dist/**', 'build/**', 'backup/**', '.git/**']
   }
 ];

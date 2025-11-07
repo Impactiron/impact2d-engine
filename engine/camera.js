@@ -11,22 +11,22 @@ export class Camera {
     this.y = y;
     this.targetX = x;
     this.targetY = y;
-    
+
     // Follow settings
     this.target = null;
     this.followLerp = 0.1;
     this.offsetX = 0;
     this.offsetY = 0;
-    
+
     // Bounds (null = no bounds)
     this.bounds = null; // { minX, minY, maxX, maxY }
-    
+
     // Shake effect
     this.shakeAmount = 0;
     this.shakeDuration = 0;
     this.shakeX = 0;
     this.shakeY = 0;
-    
+
     // Viewport dimensions (set by renderer)
     this.viewportWidth = 0;
     this.viewportHeight = 0;
@@ -62,13 +62,13 @@ export class Camera {
     if (this.target) {
       let tx = this.target.x + this.offsetX;
       let ty = this.target.y + this.offsetY;
-      
+
       // Transform support
       if (this.target.position) {
         tx = this.target.position.x + this.offsetX;
         ty = this.target.position.y + this.offsetY;
       }
-      
+
       this.targetX = tx;
       this.targetY = ty;
     }

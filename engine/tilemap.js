@@ -8,7 +8,7 @@ export class Tilemap {
    * @param {number} options.tileSize - Tile size in pixels (default: 32)
    * @param {Object} options.palette - Map of tileValue -> hex color (e.g., {0: 0x1a1f2b, 1: 0x3a3f4b})
    */
-  constructor({ tiles, tileSize = 32, palette = {0:0x101418, 1:0x2f3542} } = {}){
+  constructor({ tiles, tileSize = 32, palette = { 0: 0x101418, 1: 0x2f3542 } } = {}) {
     this.tiles = tiles || [[1]];
     this.tileSize = tileSize;
     this.palette = palette;
@@ -19,7 +19,7 @@ export class Tilemap {
    * @param {Object} renderer - The renderer instance
    * @param {string} layerName - Name of the layer to draw on (default: 'mid')
    */
-  draw(renderer, layerName='mid'){
+  draw(renderer, layerName = 'mid') {
     if (!renderer || typeof renderer.getLayerContainer !== 'function') {
       console.warn('[Tilemap.draw] Invalid renderer or missing getLayerContainer method');
       return;
@@ -38,14 +38,14 @@ export class Tilemap {
 
     // Create new Graphics object for drawing tiles
     const g = new Graphics();
-    
+
     // Draw each tile based on the palette
     for (let y = 0; y < this.tiles.length; y++) {
       const row = this.tiles[y];
       for (let x = 0; x < row.length; x++) {
         const tileValue = row[x];
         const color = this.palette[tileValue];
-        
+
         // Only draw if color is defined in palette
         if (color !== undefined && color !== null) {
           g.rect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize).fill(color);

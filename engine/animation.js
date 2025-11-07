@@ -3,7 +3,7 @@
  * Sprite sheet animator and tween system
  */
 
-import { lerp, clamp } from './utils.js';
+import { lerp } from './utils.js';
 
 // Easing functions
 export const Easing = {

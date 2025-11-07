@@ -19,14 +19,17 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
   background: var(--impact-bg-dark);
   color: var(--impact-text);
-  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-family:
+    ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'Liberation Mono',
+    monospace;
   font-size: 14px;
   line-height: 1.6;
   overflow: hidden;
@@ -112,7 +115,8 @@ a:hover {
 }
 
 /* Buttons */
-button, .btn {
+button,
+.btn {
   background: var(--impact-bg-light);
   color: var(--impact-text);
   border: 1px solid var(--impact-border);
@@ -124,17 +128,20 @@ button, .btn {
   transition: all 0.2s ease;
 }
 
-button:hover, .btn:hover {
+button:hover,
+.btn:hover {
   background: var(--impact-bg-medium);
   border-color: var(--impact-accent);
   transform: translateY(-1px);
 }
 
-button:active, .btn:active {
+button:active,
+.btn:active {
   transform: translateY(0);
 }
 
-button:disabled, .btn:disabled {
+button:disabled,
+.btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

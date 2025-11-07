@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -9,7 +9,7 @@
   <body>
     <div id="loading">Loading…</div>
     <div id="hud"></div>
-    
+
     <div class="examples-link">
       <a href="index.html">← Back to Examples</a>
     </div>
@@ -66,9 +66,12 @@
         // Movement
         const speed = 0.3;
         if (input.get('KeyW').down || input.get('ArrowUp').down) transform.position.y -= speed * dt;
-        if (input.get('KeyS').down || input.get('ArrowDown').down) transform.position.y += speed * dt;
-        if (input.get('KeyA').down || input.get('ArrowLeft').down) transform.position.x -= speed * dt;
-        if (input.get('KeyD').down || input.get('ArrowRight').down) transform.position.x += speed * dt;
+        if (input.get('KeyS').down || input.get('ArrowDown').down)
+          transform.position.y += speed * dt;
+        if (input.get('KeyA').down || input.get('ArrowLeft').down)
+          transform.position.x -= speed * dt;
+        if (input.get('KeyD').down || input.get('ArrowRight').down)
+          transform.position.x += speed * dt;
 
         // Update player graphics
         playerGraphics.x = transform.position.x;

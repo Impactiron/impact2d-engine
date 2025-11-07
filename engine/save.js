@@ -42,7 +42,7 @@ export class SaveSystem {
     try {
       const key = `${this.prefix}${slotIndex}`;
       const data = localStorage.getItem(key);
-      
+
       if (!data) return null;
 
       const saveData = JSON.parse(data);
@@ -89,7 +89,7 @@ export class SaveSystem {
     try {
       const key = `${this.prefix}${slotIndex}`;
       const data = localStorage.getItem(key);
-      
+
       if (!data) return null;
 
       const saveData = JSON.parse(data);
@@ -131,7 +131,7 @@ export class SaveSystem {
   importSlot(slotIndex, jsonString) {
     try {
       const saveData = JSON.parse(jsonString);
-      
+
       // Validate structure
       if (!saveData.version || !saveData.state) {
         throw new Error('Invalid save data structure');
@@ -187,7 +187,7 @@ export class SaveSystemIDB {
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction(['saves'], 'readwrite');
       const store = transaction.objectStore('saves');
-      
+
       const data = {
         slot: slotIndex,
         timestamp: Date.now(),

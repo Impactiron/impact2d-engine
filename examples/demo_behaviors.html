@@ -1,41 +1,56 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>!mpact2d – Behavior Demo</title>
-  <style>body{font-family:system-ui,Arial,sans-serif;margin:1.5rem}</style>
-</head>
-<body>
-  <h1>Behavior Demo: pickup + patrol</h1>
-  <p>Loads BehaviorManager and two behaviors (pickup, patrol). Check console for lifecycle logs.</p>
-  <script type="module">
-    import { BehaviorManager } from "../engine/behavior-manager.js";
-    import { createPickupBehavior } from "../engine/behaviors/pickup.js";
-    import { createPatrolBehavior } from "../engine/behaviors/patrol.js";
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>!mpact2d – Behavior Demo</title>
+    <style>
+      body {
+        font-family: system-ui, Arial, sans-serif;
+        margin: 1.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Behavior Demo: pickup + patrol</h1>
+    <p>
+      Loads BehaviorManager and two behaviors (pickup, patrol). Check console for lifecycle logs.
+    </p>
+    <script type="module">
+      import { BehaviorManager } from '../engine/behavior-manager.js';
+      import { createPickupBehavior } from '../engine/behaviors/pickup.js';
+      import { createPatrolBehavior } from '../engine/behaviors/patrol.js';
 
-    // Minimal demo shim – integrate with your actual Game/Scene/Factory as needed.
-    const manager = new BehaviorManager();
-    console.log("[demo] BehaviorManager ready:", manager);
+      // Minimal demo shim – integrate with your actual Game/Scene/Factory as needed.
+      const manager = new BehaviorManager();
+      console.log('[demo] BehaviorManager ready:', manager);
 
-    const gem = { id: "gem#1", x: 15*32, y: 9*32, tags: new Set(["pickup"]) };
-    manager.attach(gem, createPickupBehavior({ hudKey: "gems", amount: 1 }));
+      const gem = { id: 'gem#1', x: 15 * 32, y: 9 * 32, tags: new Set(['pickup']) };
+      manager.attach(gem, createPickupBehavior({ hudKey: 'gems', amount: 1 }));
 
-    const bot = { id: "bot#1", x: 320, y: 160, tags: new Set(["ai"]) };
-    manager.attach(bot, createPatrolBehavior({
-      points: [{x:320,y:160},{x:544,y:160},{x:544,y:288}],
-      speed: 70, mode: "pingpong"
-    }));
+      const bot = { id: 'bot#1', x: 320, y: 160, tags: new Set(['ai']) };
+      manager.attach(
+        bot,
+        createPatrolBehavior({
+          points: [
+            { x: 320, y: 160 },
+            { x: 544, y: 160 },
+            { x: 544, y: 288 }
+          ],
+          speed: 70,
+          mode: 'pingpong'
+        })
+      );
 
-    // crude loop (replace with your Game loop)
-    let last = performance.now();
-    function loop(t){
-      const dt = (t - last)/1000;
-      last = t;
-      manager.update(dt);
+      // crude loop (replace with your Game loop)
+      let last = performance.now();
+      function loop(t) {
+        const dt = (t - last) / 1000;
+        last = t;
+        manager.update(dt);
+        requestAnimationFrame(loop);
+      }
       requestAnimationFrame(loop);
-    }
-    requestAnimationFrame(loop);
-  </script>
-</body>
+    </script>
+  </body>
 </html>

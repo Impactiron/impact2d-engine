@@ -4,7 +4,7 @@
  */
 
 // Worker code runs in its own context
-self.onmessage = function(e) {
+self.onmessage = function (e) {
   const { type, data } = e.data;
 
   if (type === 'findPath') {

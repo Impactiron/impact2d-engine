@@ -15,22 +15,22 @@ export class PhysicsBody {
     this.vy = 0;
     this.ax = 0;
     this.ay = 0;
-    
+
     this.mass = 1;
     this.restitution = 0.5; // Bounce/elasticity (0-1)
     this.friction = 0.8; // Ground friction (0-1)
     this.airFriction = 0.98; // Air resistance (0-1)
-    
+
     this.isStatic = false;
     this.isSolid = true;
     this.isGrounded = false;
-    
+
     this.gravity = 0.5;
     this.maxVelX = 10;
     this.maxVelY = 20;
-    
+
     // Collision groups (bitflags for filtering)
-    this.collisionMask = 0xFFFFFFFF;
+    this.collisionMask = 0xffffffff;
     this.collisionLayer = 1;
   }
 
@@ -149,12 +149,12 @@ export class PhysicsWorld {
         if (this.shouldCollide(body, other)) {
           const resolution = this.resolveCollisionY(body, other, dy);
           body.y = resolution.y;
-          
+
           // Check if grounded (colliding from above)
           if (dy > 0) {
             body.isGrounded = true;
           }
-          
+
           body.vy *= -body.restitution;
         }
       }
@@ -216,7 +216,7 @@ export class PhysicsWorld {
     for (let i = 0; i < steps; i++) {
       const x = x1 + dirX * i;
       const y = y1 + dirY * i;
-      
+
       for (const body of this.bodies) {
         if (!body.isSolid) continue;
         const aabb = body.getAABB();

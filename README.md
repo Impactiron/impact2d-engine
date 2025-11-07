@@ -22,12 +22,14 @@ Visit [https://impactiron.github.io/impact2d-engine/](https://impactiron.github.
 ## ✨ Features
 
 ### Core Engine
+
 - **Pure ESM modules** - No bundler required to run
 - **PixiJS v8 renderer** - Modern WebGL-based 2D rendering via ESM CDN
 - **Component-based architecture** - Flexible ECS-style system
 - **Scene graph** - Hierarchical node system with lifecycle hooks
 
 ### Physics & Collision
+
 - 2D AABB collision detection (swept and static)
 - Restitution (elasticity) and friction
 - Spatial hash broadphase optimization
@@ -35,6 +37,7 @@ Visit [https://impactiron.github.io/impact2d-engine/](https://impactiron.github.
 - Gravity and ground detection
 
 ### Graphics & Animation
+
 - Sprite sheet animator with FPS control, ping-pong, and events
 - Tween system with easing functions
 - Particle emitters (CPU/GPU) with presets
@@ -42,18 +45,21 @@ Visit [https://impactiron.github.io/impact2d-engine/](https://impactiron.github.
 - Camera system with follow, lerp, bounds, and shake
 
 ### Audio
+
 - WebAudio API wrapper
 - 2D positional audio via PannerNode
 - Music/SFX channels with ducking
 - Load, play, stop, volume, and loop controls
 
 ### AI & Pathfinding
+
 - Finite State Machine (FSM)
 - Steering behaviors (seek, flee, arrive, wander)
-- A* pathfinding with diagonal movement
+- A\* pathfinding with diagonal movement
 - Optional Web Worker for heavy pathfinding
 
 ### Input & Haptics
+
 - Keyboard (WASD/Arrows/Space/Shift)
 - Mouse (position/click)
 - Touch (tap/drag)
@@ -61,27 +67,32 @@ Visit [https://impactiron.github.io/impact2d-engine/](https://impactiron.github.
 - Vibration API fallback
 
 ### Networking (Serverless)
+
 - **BroadcastChannel** for local multiplayer (same machine, multiple tabs)
 - WebRTC adapter interface (commented stub)
 - Simple message passing API
 
 ### Persistence & Replay
+
 - **Save/Load system** with 3 slots using LocalStorage
 - IndexedDB alternative for larger saves
 - **Replay system** for deterministic input recording/playback
 - Export/import save data as JSON
 
 ### Streaming & Progressive Loading
+
 - Asset streamer with progress events
 - Chunk-based map streaming
 - JSON, image, audio, and blob loaders
 
 ### Localization
+
 - Multi-language support (en, de included)
 - LocalStorage persistence
 - Variable replacement in translations
 
 ### Developer Tools
+
 - Object pools for memory management
 - Fixed timestep accumulator
 - Performance profiler
@@ -154,9 +165,15 @@ const player = new Node('player');
 
 // Lifecycle hooks
 player.init = () => console.log('Init');
-player.fixedUpdate = (dt) => { /* Physics at 60Hz */ };
-player.update = (dt) => { /* Variable update */ };
-player.render = (renderer) => { /* Custom rendering */ };
+player.fixedUpdate = dt => {
+  /* Physics at 60Hz */
+};
+player.update = dt => {
+  /* Variable update */
+};
+player.render = renderer => {
+  /* Custom rendering */
+};
 
 scene.add(player);
 ```
@@ -198,17 +215,17 @@ import { audio } from './engine/audio.js';
 
 await audio.init();
 await audio.load('bgm', './assets/music.mp3');
-const source = audio.play('bgm', { 
-  loop: true, 
-  volume: 0.5, 
-  channel: 'music' 
+const source = audio.play('bgm', {
+  loop: true,
+  volume: 0.5,
+  channel: 'music'
 });
 
 // Positional audio
-audio.play('sfx', { 
-  positional: true, 
-  x: 100, 
-  y: 200 
+audio.play('sfx', {
+  positional: true,
+  x: 100,
+  y: 200
 });
 ```
 
@@ -291,6 +308,7 @@ const inputs = replayPlayer.update(); // Returns inputs for current frame
 ## 🛠️ Development
 
 ### Prerequisites
+
 - Node.js 20+ (for linting/formatting only)
 - Modern browser with ES2022 support
 
@@ -325,6 +343,7 @@ MIT License - see [LICENSE](./LICENSE) file for details.
 ## 🤝 Contributing
 
 Contributions are welcome! Please ensure:
+
 - ESLint and Prettier pass
 - Code follows existing style
 - All examples work on GitHub Pages
@@ -340,6 +359,7 @@ Contributions are welcome! Please ensure:
 ## 🌟 Showcase
 
 Visit [examples/index.html](./examples/index.html) to see live demos of:
+
 - Basic player movement and camera
 - Physics collisions
 - AI pathfinding

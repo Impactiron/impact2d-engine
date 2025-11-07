@@ -187,18 +187,18 @@ export class Pathfinder {
   getNeighbors(x, y) {
     const neighbors = [];
     const dirs = [
-      { dx: 0, dy: -1, cost: 1 },  // up
-      { dx: 1, dy: 0, cost: 1 },   // right
-      { dx: 0, dy: 1, cost: 1 },   // down
-      { dx: -1, dy: 0, cost: 1 }   // left
+      { dx: 0, dy: -1, cost: 1 }, // up
+      { dx: 1, dy: 0, cost: 1 }, // right
+      { dx: 0, dy: 1, cost: 1 }, // down
+      { dx: -1, dy: 0, cost: 1 } // left
     ];
 
     if (this.allowDiagonal) {
       dirs.push(
-        { dx: 1, dy: -1, cost: 1.414 },  // up-right
-        { dx: 1, dy: 1, cost: 1.414 },   // down-right
-        { dx: -1, dy: 1, cost: 1.414 },  // down-left
-        { dx: -1, dy: -1, cost: 1.414 }  // up-left
+        { dx: 1, dy: -1, cost: 1.414 }, // up-right
+        { dx: 1, dy: 1, cost: 1.414 }, // down-right
+        { dx: -1, dy: 1, cost: 1.414 }, // down-left
+        { dx: -1, dy: -1, cost: 1.414 } // up-left
       );
     }
 
@@ -222,7 +222,7 @@ export class Pathfinder {
   heuristic(x1, y1, x2, y2) {
     // Manhattan distance for grid-based movement
     // return Math.abs(x2 - x1) + Math.abs(y2 - y1);
-    
+
     // Euclidean distance (better for diagonal movement)
     const dx = x2 - x1;
     const dy = y2 - y1;

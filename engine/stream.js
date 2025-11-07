@@ -155,7 +155,7 @@ export class MapStreamer {
 
   async loadChunk(chunkX, chunkY, mapData) {
     const key = this.getChunkKey(chunkX, chunkY);
-    
+
     if (this.chunks.has(key)) {
       return this.chunks.get(key);
     }
@@ -179,7 +179,7 @@ export class MapStreamer {
       for (let x = 0; x < this.chunkSize; x++) {
         const worldX = startX + x;
         const worldY = startY + y;
-        
+
         if (mapData.tiles && mapData.tiles[worldY] && mapData.tiles[worldY][worldX] !== undefined) {
           row.push(mapData.tiles[worldY][worldX]);
         } else {
@@ -200,7 +200,11 @@ export class MapStreamer {
   }
 
   updateVisibleChunks(cameraX, cameraY, viewWidth, viewHeight, tileSize, mapData) {
-    const { chunkX: centerChunkX, chunkY: centerChunkY } = this.worldToChunk(cameraX, cameraY, tileSize);
+    const { chunkX: centerChunkX, chunkY: centerChunkY } = this.worldToChunk(
+      cameraX,
+      cameraY,
+      tileSize
+    );
     const loadRadius = 2; // Load chunks within this radius
 
     const neededChunks = new Set();

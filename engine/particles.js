@@ -72,23 +72,23 @@ export class ParticleEmitter {
     this.emissionRate = options.emissionRate || 10; // particles per second
     this.particleLife = options.particleLife || 1000; // milliseconds
     this.particleLifeVariance = options.particleLifeVariance || 200;
-    
+
     this.minSpeed = options.minSpeed || 0.5;
     this.maxSpeed = options.maxSpeed || 2;
     this.angle = options.angle !== undefined ? options.angle : 0;
     this.angleSpread = options.angleSpread !== undefined ? options.angleSpread : Math.PI * 2;
-    
+
     this.gravity = options.gravity !== undefined ? options.gravity : 0;
     this.minSize = options.minSize || 2;
     this.maxSize = options.maxSize || 6;
     this.color = options.color || 0xffffff;
     this.rotationSpeed = options.rotationSpeed || 0;
-    
+
     this.active = false;
     this.particles = [];
     this.emissionTimer = 0;
     this.container = null; // Pixi Container
-    
+
     // Pre-create particles
     for (let i = 0; i < this.maxParticles; i++) {
       this.particles.push(new Particle());
@@ -97,7 +97,7 @@ export class ParticleEmitter {
 
   setContainer(container) {
     this.container = container;
-    
+
     // Create display objects for all particles
     for (const particle of this.particles) {
       if (!particle.display) {
@@ -125,8 +125,9 @@ export class ParticleEmitter {
 
       const angle = this.angle + (Math.random() - 0.5) * this.angleSpread;
       const speed = randomFloat(this.minSpeed, this.maxSpeed);
-      const life = this.particleLife + randomFloat(-this.particleLifeVariance, this.particleLifeVariance);
-      
+      const life =
+        this.particleLife + randomFloat(-this.particleLifeVariance, this.particleLifeVariance);
+
       particle.x = this.x;
       particle.y = this.y;
       particle.vx = Math.cos(angle) * speed;
@@ -203,7 +204,7 @@ export const ParticlePresets = {
     maxSize: 8,
     color: 0xff8800
   },
-  
+
   sparkles: {
     maxParticles: 30,
     emissionRate: 15,
@@ -218,7 +219,7 @@ export const ParticlePresets = {
     color: 0xffff00,
     rotationSpeed: 0.05
   },
-  
+
   dust: {
     maxParticles: 20,
     emissionRate: 10,

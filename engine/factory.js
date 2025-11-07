@@ -24,7 +24,8 @@ export const factory = {
 
   // tolerant: spawn(name, props) OR spawn(name, game, props)
   spawn(name, a = null, b = {}) {
-    let game = null, props = {};
+    let game = null,
+      props = {};
     if (a && typeof a === 'object' && !('addChild' in a) && !('addTo' in a)) {
       props = a || {};
     } else {
@@ -46,14 +47,37 @@ export const factory = {
     return entity;
   },
 
-  clear() { _prefabs.clear(); },
-  list() { return Array.from(_prefabs.keys()); }
+  clear() {
+    _prefabs.clear();
+  },
+  list() {
+    return Array.from(_prefabs.keys());
+  }
 };
 
 export function registerDefaultPrefabs() {
-  try { factory.register('crate', Crate); } catch (e) { /* ignore if double */ }
-  class Gem { constructor(p = {}) { this.x = p.x|0; this.y = p.y|0; this.type = 'gem'; this.size = p.size || 16; } }
-  class Bot { constructor(p = {}) { this.x = p.x|0; this.y = p.y|0; this.type = 'bot'; this.size = p.size || 16; this.speed = p.speed || 1; } }
+  try {
+    factory.register('crate', Crate);
+  } catch (_e) {
+    /* ignore if double */
+  }
+  class Gem {
+    constructor(p = {}) {
+      this.x = p.x | 0;
+      this.y = p.y | 0;
+      this.type = 'gem';
+      this.size = p.size || 16;
+    }
+  }
+  class Bot {
+    constructor(p = {}) {
+      this.x = p.x | 0;
+      this.y = p.y | 0;
+      this.type = 'bot';
+      this.size = p.size || 16;
+      this.speed = p.speed || 1;
+    }
+  }
   factory.register('gem', Gem);
   factory.register('bot', Bot);
 }

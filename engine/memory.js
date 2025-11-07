@@ -23,12 +23,12 @@ export class ObjectPool {
       obj = this.factory();
     }
     this.active.push(obj);
-    
+
     // Reset object if it has a reset method
     if (obj.reset) {
       obj.reset();
     }
-    
+
     return obj;
   }
 
@@ -109,21 +109,21 @@ export class Profiler {
 
   end(name) {
     if (!this.markers.has(name)) return 0;
-    
+
     const startTime = this.markers.get(name);
     const duration = performance.now() - startTime;
-    
+
     if (!this.results.has(name)) {
       this.results.set(name, { total: 0, count: 0, avg: 0, min: Infinity, max: 0 });
     }
-    
+
     const result = this.results.get(name);
     result.total += duration;
     result.count++;
     result.avg = result.total / result.count;
     result.min = Math.min(result.min, duration);
     result.max = Math.max(result.max, duration);
-    
+
     this.markers.delete(name);
     return duration;
   }

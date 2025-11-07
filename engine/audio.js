@@ -12,7 +12,7 @@ export class AudioEngine {
     this.sounds = new Map();
     this.playing = new Map();
     this.initialized = false;
-    
+
     // Camera/listener position for positional audio
     this.listenerX = 0;
     this.listenerY = 0;
@@ -116,7 +116,7 @@ export class AudioEngine {
     if (source && this.playing.has(source)) {
       try {
         source.stop();
-      } catch (e) {
+      } catch (_e) {
         // Already stopped
       }
       this.playing.delete(source);
@@ -127,7 +127,7 @@ export class AudioEngine {
     for (const [source] of this.playing) {
       try {
         source.stop();
-      } catch (e) {
+      } catch (_e) {
         // Already stopped
       }
     }
@@ -184,12 +184,9 @@ export class AudioEngine {
     const originalVolume = this.musicGain.gain.value;
     const duckVolume = originalVolume * (1 - duckAmount);
 
-    this.musicGain.gain.linearRampToValueAtTime(
-      duckVolume,
-      this.context.currentTime + 0.1
-    );
+    this.musicGain.gain.linearRampToValueAtTime(duckVolume, this.context.currentTime + 0.1);
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       this.musicGain.gain.linearRampToValueAtTime(
         originalVolume,
         this.context.currentTime + duration

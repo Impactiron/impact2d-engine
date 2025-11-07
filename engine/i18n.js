@@ -8,7 +8,7 @@ class I18n {
     this.currentLang = 'en';
     this.translations = {};
     this.fallbackLang = 'en';
-    
+
     // Try to load saved language preference
     const savedLang = localStorage.getItem('impact2d_lang');
     if (savedLang) {
@@ -44,7 +44,7 @@ class I18n {
   t(key, vars = {}) {
     const keys = key.split('.');
     let value = this.translations[this.currentLang];
-    
+
     // Try to find the key in current language
     for (const k of keys) {
       if (value && typeof value === 'object') {

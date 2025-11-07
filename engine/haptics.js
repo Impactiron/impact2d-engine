@@ -79,7 +79,7 @@ export class HapticsEngine {
       if (gamepad && gamepad.vibrationActuator) {
         try {
           gamepad.vibrationActuator.reset();
-        } catch (e) {
+        } catch (_e) {
           // Ignore
         }
       }
