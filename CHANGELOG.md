@@ -213,3 +213,10 @@
 | v0.7d | 2025-10-29 | ENTITY-COLLISION-2025-10-29 | Entity collision flags |
 | v0.7d Hotfix | 2025-10-29 | ENTITY-COLLISION-HOTFIX-2025-10-29 | Syntax fix (await import) |
 | v0.7d2 | 2025-10-29 | ENTITY-COLLISION-HOTFIX2-2025-10-29 | Re-enabled TriggerDriver & HUD |
+
+
+---
+This repo was auto-cleaned: consolidated map loader to `engine/maploader.js`, normalized folders (`examples/`, `docs/`), and added `.nojekyll` for GitHub Pages.
+
+
+Weitere Infos: siehe Ordner **/docs** (Getting Started, API, Beispiele).

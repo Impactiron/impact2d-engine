@@ -1,0 +1,93 @@
+name: Lint & Build
+
+on:
+  push:
+    branches: [main, master, develop, 'copilot/**']
+    paths:
+      - '**.js'
+      - '**.mjs'
+      - '**.html'
+      - '**.json'
+      - '.github/workflows/lint-build.yml'
+  pull_request:
+    branches: [main, master, develop]
+    paths:
+      - '**.js'
+      - '**.mjs'
+      - '**.html'
+      - '**.json'
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    name: Lint & Build Check
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Run Prettier check
+        run: npm run format:check
+        continue-on-error: false
+
+      - name: Check JavaScript syntax
+        run: |
+          echo "🔍 Checking JavaScript syntax..."
+          ERROR=0
+          
+          find . -name "*.js" -type f \
+            ! -path "./node_modules/*" \
+            ! -path "./backup/*" \
+            ! -path "./.git/*" | while read file; do
+            
+            if ! node --check "$file" 2>/dev/null; then
+              echo "❌ Syntax error in $file"
+              node --check "$file" 2>&1 || true
+              ERROR=1
+            fi
+          done
+          
+          if [ $ERROR -eq 1 ]; then
+            exit 1
+          fi
+          echo "✅ All JavaScript files have valid syntax"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: impact2d-engine
+          path: |
+            engine/**
+            examples/**
+            maps/**
+            assets/**
+            i18n/**
+            styles.css
+            index.html
+            favicon.ico
+            favicon.png
+          retention-days: 7
+
+      - name: Generate Summary
+        if: always()
+        run: |
+          echo "### 📊 Lint & Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Code quality checks completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Files checked:**" >> $GITHUB_STEP_SUMMARY
+          echo "- JavaScript files: $(find . -name '*.js' -type f ! -path './node_modules/*' ! -path './backup/*' | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- HTML files: $(find . -name '*.html' -type f ! -path './node_modules/*' ! -path './backup/*' | wc -l)" >> $GITHUB_STEP_SUMMARY

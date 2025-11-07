@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Physics Demo — Impact2D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <div id="loading">Loading…</div>
+  <div id="hud"></div>
+  <div class="examples-link"><a href="index.html">← Back to Examples</a></div>
+  
+  <script type="module">
+    import * as PIXI from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
+    import { PhysicsWorld, PhysicsBody } from '../engine/physics.js';
+    import { PixiRenderer } from '../engine/renderer-pixi.js';
+
+    const renderer = new PixiRenderer();
+    await renderer.init();
+    document.getElementById('loading').style.display = 'none';
+
+    const world = new PhysicsWorld();
+    world.gravity.y = 0.5;
+
+    // Create a few bodies
+    const ground = new PhysicsBody(0, 550, 800, 50);
+    ground.isStatic = true;
+    world.addBody(ground);
+
+    const box = new PhysicsBody(400, 100, 40, 40);
+    box.restitution = 0.7;
+    world.addBody(box);
+
+    // Draw bodies
+    const container = renderer.getLayerContainer('default');
+    const groundGraphics = new PIXI.Graphics();
+    groundGraphics.rect(0, 0, ground.w, ground.h).fill(0x666666);
+    groundGraphics.x = ground.x;
+    groundGraphics.y = ground.y;
+    container.addChild(groundGraphics);
+
+    const boxGraphics = new PIXI.Graphics();
+    boxGraphics.rect(0, 0, box.w, box.h).fill(0x7aa2f7);
+    container.addChild(boxGraphics);
+
+    function update() {
+      world.update(16.666);
+      
+      boxGraphics.x = box.x;
+      boxGraphics.y = box.y;
+
+      document.getElementById('hud').textContent = 
+        `Impact2D • Physics Demo • Box Pos: ${Math.floor(box.x)}, ${Math.floor(box.y)} • Vel: ${box.vx.toFixed(2)}, ${box.vy.toFixed(2)}`;
+
+      requestAnimationFrame(update);
+    }
+    update();
+  </script>
+</body>
+</html>

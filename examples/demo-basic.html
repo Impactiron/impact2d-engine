@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Basic Demo — Impact2D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div id="loading">Loading…</div>
+    <div id="hud"></div>
+    
+    <div class="examples-link">
+      <a href="index.html">← Back to Examples</a>
+    </div>
+
+    <script type="module">
+      import * as PIXI from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
+      import { Scene, Node } from '../engine/scene.js';
+      import { Camera } from '../engine/camera.js';
+      import { PixiRenderer } from '../engine/renderer-pixi.js';
+      import { Input } from '../engine/input.js';
+      import { Transform } from '../engine/component.js';
+      import { i18n } from '../engine/i18n.js';
+
+      // Initialize i18n
+      await i18n.loadLanguage('en');
+      await i18n.setLanguage('en');
+
+      // Create renderer
+      const renderer = new PixiRenderer();
+      await renderer.init();
+
+      // Create scene
+      const scene = new Scene('basic-demo');
+
+      // Create player
+      const player = new Node('player');
+      const transform = new Transform();
+      transform.position.x = 400;
+      transform.position.y = 300;
+      player.addComponent(transform);
+      scene.add(player);
+
+      // Draw player (simple square)
+      const playerGraphics = new PIXI.Graphics();
+      playerGraphics.rect(0, 0, 32, 32).fill(0x7aa2f7);
+      playerGraphics.x = transform.position.x;
+      playerGraphics.y = transform.position.y;
+      renderer.getLayerContainer('default').addChild(playerGraphics);
+
+      // Input
+      const input = new Input();
+
+      // Camera
+      const camera = new Camera(transform.position.x, transform.position.y);
+      camera.setViewport(renderer.app.renderer.width, renderer.app.renderer.height);
+      camera.follow(transform, 0.1);
+
+      // Update loop
+      let lastTime = performance.now();
+      function update(time) {
+        const dt = time - lastTime;
+        lastTime = time;
+
+        // Movement
+        const speed = 0.3;
+        if (input.get('KeyW').down || input.get('ArrowUp').down) transform.position.y -= speed * dt;
+        if (input.get('KeyS').down || input.get('ArrowDown').down) transform.position.y += speed * dt;
+        if (input.get('KeyA').down || input.get('ArrowLeft').down) transform.position.x -= speed * dt;
+        if (input.get('KeyD').down || input.get('ArrowRight').down) transform.position.x += speed * dt;
+
+        // Update player graphics
+        playerGraphics.x = transform.position.x;
+        playerGraphics.y = transform.position.y;
+
+        // Update camera
+        camera.update(dt);
+        renderer.setCamera(camera.getX(), camera.getY());
+
+        // Update HUD
+        const hud = document.getElementById('hud');
+        hud.textContent = `Impact2D • Basic Demo • Pos: ${Math.floor(transform.position.x)}, ${Math.floor(transform.position.y)} • Use WASD/Arrows to move`;
+
+        requestAnimationFrame(update);
+      }
+
+      // Hide loading
+      document.getElementById('loading').style.display = 'none';
+
+      // Start
+      requestAnimationFrame(update);
+    </script>
+  </body>
+</html>
