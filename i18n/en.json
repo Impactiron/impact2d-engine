@@ -1,0 +1,46 @@
+{
+  "engine": {
+    "title": "Impact2D Engine",
+    "loading": "Loading…",
+    "fps": "FPS",
+    "gems": "Gems",
+    "map": "Map"
+  },
+  "examples": {
+    "title": "Impact2D Examples",
+    "subtitle": "Interactive demos showcasing engine capabilities",
+    "back": "← Back to Main"
+  },
+  "demo": {
+    "basic": "Basic Demo",
+    "basicDesc": "Player movement with map and camera",
+    "physics": "Physics Demo",
+    "physicsDesc": "AABB collisions and platformer physics",
+    "factory": "Factory Demo",
+    "factoryDesc": "Dynamic entity spawning system",
+    "ai": "AI Demo",
+    "aiDesc": "Patrol, chase behaviors and A* pathfinding",
+    "audio": "Audio Demo",
+    "audioDesc": "Music, SFX and positional audio",
+    "particles": "Particles Demo",
+    "particlesDesc": "CPU/GPU particle effects",
+    "network": "Network Demo",
+    "networkDesc": "Local multiplayer with BroadcastChannel",
+    "replay": "Replay Demo",
+    "replayDesc": "Deterministic input recording and playback"
+  },
+  "hud": {
+    "record": "Recording…",
+    "replay": "Replaying…",
+    "saved": "Saved!",
+    "loaded": "Loaded!",
+    "pickup": "Item collected (+1)",
+    "mapLoaded": "Map loaded: {mapName}"
+  },
+  "controls": {
+    "move": "Move: WASD / Arrow Keys",
+    "action": "Action: Space",
+    "sprint": "Sprint: Shift",
+    "debug": "Debug: F1"
+  }
+}

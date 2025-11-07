@@ -4,13 +4,15 @@ import { Transform } from './component.js';
 
 const _colliders = new Set(); // store components
 
-export function getColliders() { return _colliders; }
+export function getColliders() {
+  return _colliders;
+}
 
 export class Collider extends Component {
   // size: number (assume square); solid: boolean
   constructor(size = 16, solid = true) {
     super();
-    this.size = size|0;
+    this.size = size | 0;
     this.solid = !!solid;
   }
   onAttach() {
@@ -21,7 +23,7 @@ export class Collider extends Component {
   }
   getAABB() {
     const tr = this.owner.getComponent(Transform);
-    if (!tr) return { x:0, y:0, w:this.size, h:this.size };
+    if (!tr) return { x: 0, y: 0, w: this.size, h: this.size };
     return { x: tr.position.x, y: tr.position.y, w: this.size, h: this.size };
   }
 }

@@ -1,0 +1,263 @@
+/* Impact2D Engine - Dark Theme Styles */
+:root {
+  --impact-bg-dark: #0b0f15;
+  --impact-bg-medium: #0f131a;
+  --impact-bg-light: #1a1f2e;
+  --impact-accent: #7aa2f7;
+  --impact-accent-hover: #9ec5ff;
+  --impact-text: #e6e6e6;
+  --impact-text-dim: #9aa5b1;
+  --impact-border: #2a2f3e;
+  --impact-success: #7dcfff;
+  --impact-warning: #e0af68;
+  --impact-error: #f7768e;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--impact-bg-dark);
+  color: var(--impact-text);
+  font-family:
+    ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'Liberation Mono',
+    monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Canvas styling */
+canvas {
+  display: block;
+  margin: 0 auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Loading indicator */
+#loading {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  background: var(--impact-bg-light);
+  border: 1px solid var(--impact-border);
+  border-radius: 6px;
+  padding: 8px 14px;
+  color: var(--impact-text);
+  font-size: 13px;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* HUD overlay */
+#hud {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  z-index: 1000;
+  background: rgba(15, 19, 26, 0.85);
+  border: 1px solid var(--impact-border);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--impact-text);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Debug overlay */
+#debug {
+  position: fixed;
+  right: 12px;
+  top: 12px;
+  z-index: 999;
+  background: rgba(15, 19, 26, 0.85);
+  border: 1px solid var(--impact-border);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--impact-text-dim);
+  max-width: 300px;
+  display: none;
+}
+
+#debug.active {
+  display: block;
+}
+
+/* Links */
+a {
+  color: var(--impact-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--impact-accent-hover);
+  text-decoration: underline;
+}
+
+/* Buttons */
+button,
+.btn {
+  background: var(--impact-bg-light);
+  color: var(--impact-text);
+  border: 1px solid var(--impact-border);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover,
+.btn:hover {
+  background: var(--impact-bg-medium);
+  border-color: var(--impact-accent);
+  transform: translateY(-1px);
+}
+
+button:active,
+.btn:active {
+  transform: translateY(0);
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Examples link (bottom-right) */
+.examples-link {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  font-size: 14px;
+  padding: 8px 14px;
+  background: var(--impact-bg-light);
+  border: 1px solid var(--impact-border);
+  border-radius: 6px;
+  z-index: 1000;
+}
+
+/* Impact2D branding */
+.impact-logo {
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.impact-brand {
+  font-weight: 600;
+  color: var(--impact-accent);
+  letter-spacing: 0.5px;
+}
+
+/* Example cards */
+.examples-container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.examples-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.examples-header h1 {
+  font-size: 36px;
+  margin-bottom: 12px;
+  color: var(--impact-accent);
+}
+
+.examples-header p {
+  font-size: 16px;
+  color: var(--impact-text-dim);
+}
+
+.examples-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.example-card {
+  background: var(--impact-bg-light);
+  border: 1px solid var(--impact-border);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.example-card:hover {
+  border-color: var(--impact-accent);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(122, 162, 247, 0.15);
+}
+
+.example-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--impact-accent);
+}
+
+.example-card p {
+  font-size: 14px;
+  color: var(--impact-text-dim);
+  line-height: 1.5;
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--impact-bg-medium);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--impact-border);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--impact-accent);
+}

@@ -1,0 +1,46 @@
+{
+  "engine": {
+    "title": "Impact2D Engine",
+    "loading": "Lädt…",
+    "fps": "FPS",
+    "gems": "Edelsteine",
+    "map": "Karte"
+  },
+  "examples": {
+    "title": "Impact2D Beispiele",
+    "subtitle": "Interaktive Demos der Engine-Funktionen",
+    "back": "← Zurück zur Hauptseite"
+  },
+  "demo": {
+    "basic": "Einfache Demo",
+    "basicDesc": "Spielerbewegung mit Karte und Kamera",
+    "physics": "Physik-Demo",
+    "physicsDesc": "AABB-Kollisionen und Plattformer-Physik",
+    "factory": "Factory-Demo",
+    "factoryDesc": "Dynamisches Entity-Spawning-System",
+    "ai": "KI-Demo",
+    "aiDesc": "Patrouille, Verfolgung und A*-Pfadfindung",
+    "audio": "Audio-Demo",
+    "audioDesc": "Musik, SFX und positionales Audio",
+    "particles": "Partikel-Demo",
+    "particlesDesc": "CPU/GPU-Partikeleffekte",
+    "network": "Netzwerk-Demo",
+    "networkDesc": "Lokaler Multiplayer mit BroadcastChannel",
+    "replay": "Replay-Demo",
+    "replayDesc": "Deterministisches Aufzeichnen und Abspielen"
+  },
+  "hud": {
+    "record": "Aufnahme läuft…",
+    "replay": "Wiedergabe läuft…",
+    "saved": "Gespeichert!",
+    "loaded": "Geladen!",
+    "pickup": "Gegenstand aufgenommen (+1)",
+    "mapLoaded": "Karte geladen: {mapName}"
+  },
+  "controls": {
+    "move": "Bewegen: WASD / Pfeiltasten",
+    "action": "Aktion: Leertaste",
+    "sprint": "Sprint: Umschalt",
+    "debug": "Debug: F1"
+  }
+}
