@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="impact-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7aa2f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9ec5ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer hexagon -->
+  <polygon points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5" 
+           fill="none" stroke="url(#impact-gradient)" stroke-width="3"/>
+  
+  <!-- Inner "I" shape -->
+  <rect x="45" y="25" width="10" height="50" fill="url(#impact-gradient)" rx="2"/>
+  <rect x="35" y="25" width="30" height="8" fill="url(#impact-gradient)" rx="2"/>
+  <rect x="35" y="67" width="30" height="8" fill="url(#impact-gradient)" rx="2"/>
+  
+  <!-- "2D" text -->
+  <text x="50" y="92" font-family="monospace" font-size="12" font-weight="bold" 
+        fill="url(#impact-gradient)" text-anchor="middle">2D</text>
+</svg>
