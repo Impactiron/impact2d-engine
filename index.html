@@ -24,12 +24,14 @@
 
     <!-- Debug toggle (F1) -->
     <script type="module">
-      window.addEventListener('keydown', e => {
-        if (e.key === 'F1') {
-          e.preventDefault();
-          const debug = document.getElementById('debug');
-          debug.classList.toggle('active');
-        }
+      window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('keydown', e => {
+          if (e.key === 'F1') {
+            e.preventDefault();
+            const debug = document.getElementById('debug');
+            debug.classList.toggle('active');
+          }
+        });
       });
     </script>
   </body>

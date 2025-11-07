@@ -123,8 +123,6 @@ export class PhysicsWorld {
 
   moveAndCollide(body, dx, dy) {
     // Swept AABB collision resolution
-    const origX = body.x;
-    const origY = body.y;
 
     // Move X axis
     body.x += dx;

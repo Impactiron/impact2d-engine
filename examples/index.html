@@ -5,6 +5,11 @@
     <title>Impact2D Examples — Interactive Demos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../styles.css" />
+    <script>
+      // Set language dynamically based on browser preference
+      const browserLang = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
+      document.documentElement.lang = ['en', 'de'].includes(browserLang) ? browserLang : 'en';
+    </script>
   </head>
   <body>
     <div class="examples-container">

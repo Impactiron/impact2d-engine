@@ -81,7 +81,9 @@ export class PixiRenderer {
         w = s;
         h = s;
       }
-    } catch (e) {}
+    } catch (_e) {
+      // Invalid spec format, use defaults
+    }
     const g = new Graphics().rect(0, 0, w, h).fill(0xffffff);
     g.__impact2d_size = { w, h };
     return g;

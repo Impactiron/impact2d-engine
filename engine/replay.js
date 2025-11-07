@@ -82,7 +82,7 @@ export class ReplayRecorder {
             duration: data.duration,
             timestamp: data.timestamp
           });
-        } catch (e) {
+        } catch (_e) {
           // Skip invalid replays
         }
       }

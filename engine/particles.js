@@ -4,7 +4,7 @@
  */
 
 import { Graphics } from 'https://unpkg.com/pixi.js@8.2.5/dist/pixi.mjs';
-import { randomFloat, randomInt } from './utils.js';
+import { randomFloat } from './utils.js';
 
 export class Particle {
   constructor() {

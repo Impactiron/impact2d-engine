@@ -4,7 +4,7 @@
  * Backwards compatible with _init, _fixedUpdate, _update, _render
  */
 
-import { Node as BaseNode, Scene as BaseScene } from './node.js';
+import { Node as BaseNode } from './node.js';
 
 // Enhanced Node with lifecycle hooks
 export class Node extends BaseNode {
@@ -15,9 +15,9 @@ export class Node extends BaseNode {
 
   // Lifecycle hooks (override in subclasses)
   init() {}
-  fixedUpdate(dt) {}
-  update(dt) {}
-  render(renderer) {}
+  fixedUpdate(_dt) {}
+  update(_dt) {}
+  render(_renderer) {}
 
   // Internal lifecycle callers with backwards compatibility
   _init() {
